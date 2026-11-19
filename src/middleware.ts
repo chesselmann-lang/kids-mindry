@@ -24,8 +24,15 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   const { pathname } = request.nextUrl
 
-  // Public paths
-  const publicPaths = ['/login', '/register', '/auth/callback']
+  // Public paths (no auth required)
+  const publicPaths = [
+    '/login',
+    '/register',
+    '/auth/callback',
+    '/api/health',              // uptime monitoring
+    '/api/eltern-pin/verify',   // PIN modal shown before login
+    '/api/consent/verify',      // e-mail confirmation link (arrives unauthenticated)
+  ]
   const isPublic = publicPaths.some(p => pathname.startsWith(p))
 
   if (!user && !isPublic) {

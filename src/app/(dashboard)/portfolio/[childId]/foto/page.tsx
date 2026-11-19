@@ -19,19 +19,56 @@ export default function PortfolioFotoPage({ params }: { params: { childId: strin
   const [done, setDone] = useState(false)
   const [error, setError] = useState('')
 
-  const handleFile = (f: File) => {
+  // Canvas-Komprimierung: max 1920px, JPEG 0.82 — reduziert Speicherbedarf ~60-80%
+  const compressImage = (file: File): Promise<File> =>
+    new Promise((resolve, reject) => {
+      const MAX_PX = 1920
+      const QUALITY = 0.82
+      const reader = new FileReader()
+      reader.onload = ev => {
+        const img = new Image()
+        img.onload = () => {
+          const scale = Math.min(1, MAX_PX / Math.max(img.width, img.height))
+          const w = Math.round(img.width * scale)
+          const h = Math.round(img.height * scale)
+          const canvas = document.createElement('canvas')
+          canvas.width = w; canvas.height = h
+          const ctx = canvas.getContext('2d')!
+          ctx.drawImage(img, 0, 0, w, h)
+          canvas.toBlob(
+            blob => {
+              if (!blob) { reject(new Error('Komprimierung fehlgeschlagen')); return }
+              resolve(new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' }))
+            },
+            'image/jpeg', QUALITY
+          )
+        }
+        img.onerror = reject
+        img.src = ev.target?.result as string
+      }
+      reader.onerror = reject
+      reader.readAsDataURL(file)
+    })
+
+  const handleFile = async (f: File) => {
     if (!f.type.startsWith('image/')) { setError('Nur Bilder erlaubt'); return }
-    if (f.size > 10 * 1024 * 1024) { setError('Max. 10 MB'); return }
-    setFile(f); setError('')
-    const reader = new FileReader()
-    reader.onload = e => setPreview(e.target?.result as string)
-    reader.readAsDataURL(f)
+    if (f.size > 20 * 1024 * 1024) { setError('Max. 20 MB (Originaldatei)'); return }
+    setError('')
+    try {
+      const compressed = f.size > 500 * 1024 ? await compressImage(f) : f
+      setFile(compressed)
+      const reader = new FileReader()
+      reader.onload = e => setPreview(e.target?.result as string)
+      reader.readAsDataURL(compressed)
+    } catch {
+      setError('Bild konnte nicht verarbeitet werden.')
+    }
   }
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault()
     const f = e.dataTransfer.files[0]
-    if (f) handleFile(f)
+    if (f) handleFile(f)  // async, no await needed here — state updates async
   }
 
   const handleUpload = async () => {
@@ -116,13 +153,13 @@ export default function PortfolioFotoPage({ params }: { params: { childId: strin
             </div>
             <div className="text-center">
               <p className="text-sm font-semibold text-gray-700">Foto auswählen oder hier ablegen</p>
-              <p className="text-xs text-gray-400 mt-0.5">JPG, PNG, HEIC · max. 10 MB</p>
+              <p className="text-xs text-gray-400 mt-0.5">JPG, PNG, HEIC · wird automatisch komprimiert</p>
             </div>
           </div>
         )}
       </div>
       <input ref={fileRef} type="file" accept="image/*" className="hidden"
-        onChange={e => e.target.files?.[0] && handleFile(e.target.files[0])} />
+        onChange={e => { if (e.target.files?.[0]) handleFile(e.target.files[0]) }} />
 
       {/* Bildunterschrift */}
       <div className="space-y-1.5">

@@ -433,6 +433,22 @@ export default async function AdminPage() {
       color: 'from-violet-100 to-purple-200',
       iconColor: 'text-violet-700',
     },
+    {
+      title: 'KI-Tages-Cockpit',
+      sub: 'Live-KPIs & KI-Tagesprognose',
+      icon: Activity,
+      href: '/admin/cockpit',
+      color: 'from-indigo-100 to-blue-200',
+      iconColor: 'text-indigo-700',
+    },
+    {
+      title: 'Qualitätssicherung',
+      sub: 'KI-Audit für Beobachtungen',
+      icon: ShieldCheck,
+      href: '/admin/qualitaet',
+      color: 'from-purple-100 to-fuchsia-200',
+      iconColor: 'text-purple-700',
+    },
   ]
 
   return (

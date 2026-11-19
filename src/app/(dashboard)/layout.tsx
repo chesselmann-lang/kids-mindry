@@ -1,9 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import BottomNav from '@/components/layout/bottom-nav'
-import TopBar from '@/components/layout/top-bar'
-import InstallBanner from '@/components/pwa/install-banner'
-import { OfflineBanner } from '@/components/ui/offline-banner'
+import AppShell from '@/components/layout/app-shell'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -13,12 +10,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const { data: profile } = await (supabase as any)
     .from('profiles').select('*').eq('id', user.id).single()
 
-  const { data: site } = await supabase
-    .from('sites').select('*').eq('id', process.env.NEXT_PUBLIC_DEFAULT_SITE_ID!).single()
-
   const role = profile?.role ?? 'parent'
   const isAdmin = ['admin', 'group_lead'].includes(role)
   const isStaff = ['educator', 'group_lead', 'admin', 'caretaker'].includes(role)
+
+  const userName = [profile?.first_name, profile?.last_name].filter(Boolean).join(' ') || user.email || ''
 
   // Unread notifications count
   const { count: unreadNotifications } = await supabase
@@ -47,21 +43,14 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <TopBar
-        user={user}
-        profile={profile}
-        site={site}
-        isStaff={isStaff}
-        isAdmin={isAdmin}
-        unreadNotifications={unreadNotifications ?? 0}
-      />
-      <main id="main-content" className="flex-1 max-w-2xl mx-auto w-full px-4 pb-24 pt-4">
-        {children}
-      </main>
-      <BottomNav isStaff={isStaff} isAdmin={isAdmin} unreadMessages={unreadMessages} unreadNotifications={unreadNotifications ?? 0} />
-      <InstallBanner />
-      <OfflineBanner />
-    </div>
+    <AppShell
+      isAdmin={isAdmin}
+      isStaff={isStaff}
+      userName={userName}
+      unreadNotifications={unreadNotifications ?? 0}
+      unreadMessages={unreadMessages}
+    >
+      {children}
+    </AppShell>
   )
 }

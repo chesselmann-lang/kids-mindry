@@ -121,7 +121,7 @@ Schreibe eine warme, informative Tages-Synthese für das Kita-Team (wird nicht a
 
   try {
     const response = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
+      model: 'claude-sonnet-4-6',
       max_tokens: 350,
       messages: [{ role: 'user', content: prompt }],
     })

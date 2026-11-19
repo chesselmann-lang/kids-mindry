@@ -78,7 +78,7 @@ Gib 2-4 kurze Hinweise auf Deutsch zurück als JSON-Array:
 Fokus: Entwicklungsfortschritt, Stärken, nächste Schritte, elterliche Einbindung. Nur JSON, kein Markdown.`
 
   const msg = await client.messages.create({
-    model: 'claude-haiku-4-5-20251001',
+    model: 'claude-sonnet-4-6',
     max_tokens: 600,
     messages: [{ role: 'user', content: prompt }],
   })

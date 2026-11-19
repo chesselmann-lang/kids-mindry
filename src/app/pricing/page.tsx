@@ -49,7 +49,7 @@ const PLANS = [
       'Unbegrenzte Kinder',
       'Alles aus Starter',
       'KI-Tagesberichte & Förderanträge',
-      'SEPA-Lastschrift & Stripe',
+      'SEPA-Lastschrift & Banküberweisung',
       'Steuerbescheinigung als PDF',
       'WhatsApp-Broadcast',
       'Übersetzungen (30+ Sprachen)',
@@ -87,7 +87,7 @@ const FEATURES = [
   { icon: Baby, title: 'Kinderverwaltung', desc: 'Stammdaten, Fotos, Notfallkontakte, Allergien und Impfungen — alles an einem Ort.', color: 'bg-blue-100 text-blue-700' },
   { icon: MessageCircle, title: 'Eltern-Kommunikation', desc: 'Feed, Newsletter, WhatsApp-Broadcast, Übersetzungen in 30 Sprachen.', color: 'bg-violet-100 text-violet-700' },
   { icon: Brain, title: 'KI-Assistent', desc: 'Claude AI schreibt automatisch Tagesberichte und Förderanträge — spart 2h/Tag.', color: 'bg-amber-100 text-amber-700' },
-  { icon: Euro, title: 'Zahlungen & Finanzen', desc: 'SEPA-Lastschriften, Stripe, Sozialstaffel, Steuerbescheinigungen, Lexoffice.', color: 'bg-emerald-100 text-emerald-700' },
+  { icon: Euro, title: 'Zahlungen & Finanzen', desc: 'SEPA-Lastschriften, Banküberweisung, Sozialstaffel, Steuerbescheinigungen, Lexoffice.', color: 'bg-emerald-100 text-emerald-700' },
   { icon: Shield, title: 'DSGVO-konform', desc: 'Server in Deutschland, Löschpflichten, VVT, TOM – vollständig dokumentiert.', color: 'bg-red-100 text-red-700' },
   { icon: Smartphone, title: 'Mobile App (PWA)', desc: 'Installierbar auf iOS & Android. Offline-fähig. Push-Benachrichtigungen.', color: 'bg-teal-100 text-teal-700' },
   { icon: BarChart3, title: 'Statistiken & Reports', desc: 'Anwesenheits-Heatmap, Monatsrückblick, Gruppenstatistiken auf einen Blick.', color: 'bg-indigo-100 text-indigo-700' },
@@ -188,22 +188,11 @@ export default function PricingPage() {
   const [loading, setLoading] = useState<string | null>(null)
 
   const checkout = async (plan: typeof PLANS[0]) => {
-    if (plan.id === 'traeger') {
-      window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent('Hallo, ich interessiere mich für den Träger-Plan von KitaHub.')}`, '_blank')
-      return
-    }
+    // Mock checkout — zeigt Demo-Hinweis (keine echte Zahlungsabwicklung)
     setLoading(plan.id)
-    try {
-      const res = await fetch('/api/stripe/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ planId: plan.id, jaehrlich }),
-      })
-      const data = await res.json()
-      if (data.url) window.location.href = data.url
-    } finally {
-      setLoading(null)
-    }
+    await new Promise(r => setTimeout(r, 600))
+    setLoading(null)
+    alert(`Demo-Modus: Tarif "${plan.name}" ausgewählt.\nFür Testphase kontaktieren Sie uns unter hallo@mindry.de.`)
   }
 
   return (

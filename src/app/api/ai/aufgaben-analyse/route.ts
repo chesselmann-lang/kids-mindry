@@ -74,7 +74,7 @@ Gib 3-4 konkrete Hinweise zur Aufgabenverwaltung. Antworte NUR mit JSON-Array:
 
   try {
     const response = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
+      model: 'claude-sonnet-4-6',
       max_tokens: 400,
       messages: [{ role: 'user', content: prompt }],
     })

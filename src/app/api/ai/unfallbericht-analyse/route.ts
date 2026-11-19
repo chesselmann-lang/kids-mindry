@@ -86,7 +86,7 @@ Erstelle 2-3 präzise Sicherheitshinweise. Antworte NUR mit JSON:
 
   try {
     const response = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
+      model: 'claude-sonnet-4-6',
       max_tokens: 400,
       messages: [{ role: 'user', content: prompt }],
     })

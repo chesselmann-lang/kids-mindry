@@ -32,6 +32,7 @@ interface Props {
 export default function MessageInput({ conversationId, currentUserId, isStaff = false, senderName = '' }: Props) {
   const [text, setText] = useState('')
   const [sending, setSending] = useState(false)
+  const [sendError, setSendError] = useState<string | null>(null)
   const [showAbsence, setShowAbsence] = useState(false)
   const [absenceType, setAbsenceType] = useState<'sick' | 'vacation' | 'other'>('sick')
   const [absenceNote, setAbsenceNote] = useState('')
@@ -76,26 +77,32 @@ export default function MessageInput({ conversationId, currentUserId, isStaff = 
   async function sendMessage(body: string, type: 'text' | 'absence_report' = 'text', meta: Record<string, unknown> = {}) {
     if (!body.trim() && attachments.length === 0) return
     setSending(true)
+    setSendError(null)
     const fullMeta: Record<string, unknown> = { ...meta }
     if (attachments.length > 0) {
       fullMeta.attachments = attachments.map(a => ({ url: a.url, name: a.name, type: 'image' }))
     }
     const msgBody = body || (attachments.length > 0 ? '📷 Bild' : '')
-    await supabase.from('messages').insert({
-      conversation_id: conversationId,
-      sender_id: currentUserId,
-      body: msgBody,
-      type,
-      meta: fullMeta,
-    })
-    setSending(false)
 
-    // Trigger push notifications (fire-and-forget, best effort)
-    fetch(`/api/conversations/${conversationId}/notify`, {
+    // Alle Text-Nachrichten gehen durch die API-Route (Wort-Filter + Rate-Limit + Push)
+    const res = await fetch('/api/nachrichten/send', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messageBody: msgBody, senderName }),
-    }).catch(() => {/* non-fatal */})
+      body: JSON.stringify({ conversationId, body: msgBody, type, meta: fullMeta }),
+    })
+
+    setSending(false)
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}))
+      const msg = data?.error ?? 'Fehler beim Senden.'
+      setSendError(msg)
+      // Kurze Fehlermeldung: nach 5s wieder ausblenden
+      setTimeout(() => setSendError(null), 5000)
+      return false
+    }
+
+    return true
   }
 
   async function handleSend() {
@@ -103,9 +110,8 @@ export default function MessageInput({ conversationId, currentUserId, isStaff = 
     // Stop typing indicator
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current)
     typingChannelRef.current?.untrack()
-    await sendMessage(text.trim())
-    setText('')
-    setAttachments([])
+    const ok = await sendMessage(text.trim())
+    if (ok) { setText(''); setAttachments([]) }
   }
 
   async function handleAbsence() {
@@ -233,6 +239,14 @@ export default function MessageInput({ conversationId, currentUserId, isStaff = 
               <Loader2 size={18} className="text-brand-400 animate-spin" />
             </div>
           )}
+        </div>
+      )}
+
+      {/* Fehlermeldung (Content-Filter / Rate-Limit) */}
+      {sendError && (
+        <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-red-50 border border-red-100 text-xs text-red-600 animate-in fade-in duration-200">
+          <AlertCircle size={13} className="flex-shrink-0" />
+          {sendError}
         </div>
       )}
 

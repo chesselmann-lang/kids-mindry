@@ -89,6 +89,9 @@ const ADMIN_COMMANDS: CommandItem[] = [
   { id: 'admin-warteliste', label: 'Warteliste',      icon: ClipboardList, group: 'Admin', href: '/admin/warteliste' },
   { id: 'admin-foerderplaene', label: 'Förderpläne',  icon: Star,      group: 'Admin', href: '/admin/foerderplaene' },
   { id: 'admin-dokumente', label: 'Dokumente',        icon: FileText,  group: 'Admin', href: '/admin/dokumente' },
+  { id: 'admin-cockpit',   label: 'KI-Tages-Cockpit', icon: SunMedium, group: 'Admin', href: '/admin/cockpit', keywords: ['ki', 'prognose', 'dashboard', 'kpis'] },
+  { id: 'admin-qualitaet', label: 'Qualitätssicherung', icon: Star,    group: 'Admin', href: '/admin/qualitaet', keywords: ['audit', 'beobachtungen', 'ki-check'] },
+  { id: 'admin-live',      label: 'Live-Anwesenheit', icon: Users,     group: 'Admin', href: '/admin/anwesenheit/live', keywords: ['realtime', 'checkin', 'live'] },
 ]
 
 // ── Component ─────────────────────────────────────────────────────────────────

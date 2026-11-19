@@ -3,6 +3,8 @@ import { Plus_Jakarta_Sans } from 'next/font/google'
 import { ToastProvider } from '@/components/ui/toast'
 import { ConfirmProvider } from '@/components/ui/dialog'
 import { ThemeScript } from '@/components/ui/theme-toggle'
+import ConsentBanner from '@/components/ui/consent-banner'
+import { PostHogProvider } from '@/components/PostHogProvider'
 import './globals.css'
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -13,11 +15,19 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 })
 
 export const metadata: Metadata = {
-  title: { default: 'KitaHub', template: '%s | KitaHub' },
-  description: 'Die digitale Kita-App für Eltern und Erzieher',
+  title: { default: 'mindry kids', template: '%s · mindry kids' },
+  description: 'Die sichere Kita-App für Kinder, Eltern und Erzieher',
   manifest: '/manifest.json',
   icons: { icon: '/favicon.ico', apple: '/apple-touch-icon.png' },
   robots: 'noindex, nofollow', // App requires login – keep out of search engines
+  other: {
+    // KJM Altersklassifizierung (§ 5 JMStV / Kommission für Jugendmedienschutz)
+    // kids.mindry.de ist eine Kinder-App: Altersfreigabe FSK/KJM 0+
+    'rating': 'safe for kids',
+    'DC.audience': 'children',
+    // ICRA / IWF child safety meta tags
+    'ICRA_label': '0+',
+  },
 }
 
 export const viewport: Viewport = {
@@ -40,11 +50,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <a href="#main-content" className="skip-link">
           Zum Hauptinhalt springen
         </a>
-        <ConfirmProvider>
-          <ToastProvider>
-            {children}
-          </ToastProvider>
-        </ConfirmProvider>
+        <PostHogProvider>
+          <ConfirmProvider>
+            <ToastProvider>
+              {children}
+              {/* Art. 8 DSGVO: consent banner — child-friendly, Eltern-PIN required to decline optional cookies */}
+              <ConsentBanner />
+            </ToastProvider>
+          </ConfirmProvider>
+        </PostHogProvider>
       </body>
     </html>
   )

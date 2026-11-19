@@ -4,8 +4,9 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { formatDistanceToNow, format, isToday, isYesterday } from 'date-fns'
 import { de } from 'date-fns/locale'
-import { ArrowDown, CheckCheck } from 'lucide-react'
+import { ArrowDown, CheckCheck, MoreHorizontal, Flag, X } from 'lucide-react'
 import type { Message } from '@/types/database'
+import TranslateButton from '@/components/ui/translate-button'
 
 interface Props {
   initialMessages: Message[]
@@ -29,6 +30,78 @@ function dateSeparator(dateStr: string) {
   return format(d, 'EEEE, d. MMMM', { locale: de })
 }
 
+// ─── Report-Popup ─────────────────────────────────────────────────────────────
+function ReportPopup({ messageId, onClose }: { messageId: string; onClose: () => void }) {
+  const [loading, setLoading] = useState(false)
+  const [done, setDone] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const submit = async (reason: string) => {
+    setLoading(true)
+    setError(null)
+    try {
+      const res = await fetch('/api/nachrichten/report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messageId, reason }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setError(data?.error ?? 'Fehler beim Melden.')
+        setLoading(false)
+        return
+      }
+      setDone(true)
+      setTimeout(() => onClose(), 1800)
+    } catch {
+      setError('Verbindungsfehler.')
+      setLoading(false)
+    }
+  }
+
+  if (done) {
+    return (
+      <div className="absolute z-50 right-0 top-8 w-56 rounded-2xl shadow-xl border border-gray-100 bg-white p-4 text-center animate-in fade-in zoom-in-95 duration-150">
+        <p className="text-2xl mb-1">✅</p>
+        <p className="text-sm font-semibold text-gray-700">Gemeldet</p>
+        <p className="text-xs text-gray-400 mt-0.5">Danke für deine Meldung.</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="absolute z-50 right-0 top-8 w-56 rounded-2xl shadow-xl border border-gray-100 bg-white overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+      <div className="flex items-center justify-between px-3 py-2.5 border-b border-gray-50">
+        <span className="text-xs font-bold text-gray-600 uppercase tracking-wide">Nachricht melden</span>
+        <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
+          <X size={13} />
+        </button>
+      </div>
+      {error && (
+        <p className="text-xs text-red-500 px-3 py-1.5 bg-red-50">{error}</p>
+      )}
+      <div className={`divide-y divide-gray-50 ${loading ? 'opacity-50 pointer-events-none' : ''}`}>
+        {[
+          { key: 'inappropriate', label: 'Unangemessener Inhalt' },
+          { key: 'harassment', label: 'Belästigung / Mobbing' },
+          { key: 'spam', label: 'Spam / Werbung' },
+          { key: 'illegal', label: 'Illegaler Inhalt' },
+          { key: 'other', label: 'Sonstiges' },
+        ].map(({ key, label }) => (
+          <button
+            key={key}
+            onClick={() => submit(key)}
+            className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-red-700 transition-colors flex items-center gap-2"
+          >
+            <Flag size={12} className="text-red-400 flex-shrink-0" />
+            {label}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export default function MessageList({ initialMessages, conversationId, currentUserId, senderProfiles, otherUserIds = [] }: Props) {
   const [messages, setMessages] = useState<Message[]>(initialMessages)
   const [profiles, setProfiles] = useState<Record<string, string>>(senderProfiles)
@@ -36,10 +109,24 @@ export default function MessageList({ initialMessages, conversationId, currentUs
   const [unreadSinceScroll, setUnreadSinceScroll] = useState(0)
   const [typingUsers, setTypingUsers] = useState<string[]>([])
   const [otherLastReadAt, setOtherLastReadAt] = useState<string | null>(null)
+  const [reportingMessageId, setReportingMessageId] = useState<string | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const isAtBottomRef = useRef(true)
   const supabase = createClient()
+
+  // Close report popup on click outside
+  useEffect(() => {
+    if (!reportingMessageId) return
+    const handler = (e: MouseEvent) => {
+      const target = e.target as HTMLElement
+      if (!target.closest('[data-report-popup]') && !target.closest('[data-report-trigger]')) {
+        setReportingMessageId(null)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [reportingMessageId])
 
   // Track scroll position
   const handleScroll = useCallback(() => {
@@ -209,10 +296,11 @@ export default function MessageList({ initialMessages, conversationId, currentUs
         const { msg } = item
         const isMe = msg.sender_id === currentUserId
         const senderName = profiles[msg.sender_id] ?? 'Unbekannt'
+        const hasText = msg.body && msg.body !== '📷 Bild' && msg.type !== 'system'
 
         return (
-          <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'} px-1`}>
-            <div className={`max-w-[80%] ${isMe ? 'items-end' : 'items-start'} flex flex-col gap-0.5`}>
+          <div key={msg.id} className={`group flex ${isMe ? 'justify-end' : 'justify-start'} px-1`}>
+            <div className={`max-w-[80%] ${isMe ? 'items-end' : 'items-start'} flex flex-col gap-0.5 relative`}>
               {!isMe && (
                 <span className="text-[10px] text-gray-400 px-1">{senderName}</span>
               )}
@@ -247,6 +335,34 @@ export default function MessageList({ initialMessages, conversationId, currentUs
                   msg.body
                 )}
               </div>
+              )}
+              {/* Übersetzungsbutton + Report — nur auf fremden Textnachrichten, auf hover sichtbar */}
+              {!isMe && hasText && (
+                <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-150 px-1 flex items-center gap-1.5">
+                  <TranslateButton
+                    text={msg.body!}
+                    messageId={msg.id}
+                  />
+                  {/* Report-Button (⋯) */}
+                  <div className="relative" data-report-trigger>
+                    <button
+                      onClick={() => setReportingMessageId(prev => prev === msg.id ? null : msg.id)}
+                      className="flex items-center justify-center w-6 h-6 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                      title="Nachricht melden"
+                      aria-label="Nachricht melden"
+                    >
+                      <MoreHorizontal size={13} />
+                    </button>
+                    {reportingMessageId === msg.id && (
+                      <div data-report-popup>
+                        <ReportPopup
+                          messageId={msg.id}
+                          onClose={() => setReportingMessageId(null)}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
               )}
               <span className={`text-[10px] px-1 flex items-center gap-1 ${isMe ? 'text-gray-400' : 'text-gray-400'}`}>
                 {formatMsgTime(msg.created_at)}

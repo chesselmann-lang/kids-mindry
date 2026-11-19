@@ -73,7 +73,7 @@ Maximal 5 Einträge. Mischung aus 2-3 Themen/Mustern und 2 Empfehlungen.`
   let results: any[] = []
   try {
     const response = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
+      model: 'claude-sonnet-4-6',
       max_tokens: 600,
       messages: [{ role: 'user', content: prompt }],
     })
