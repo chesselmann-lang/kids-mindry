@@ -42,7 +42,8 @@ Hoch:
 
 Mittel:
 - [ ] Bucket `kita-docs`: Lesen/Hochladen/Löschen für alle Angemeldeten → auf Einrichtung beschränken
-- [ ] App-Änderungen aus 0a (signierte URLs) deployen und Portfolio/Chat-Bilder testen; Typprüfung lief nicht (keine node_modules lokal)
+- [ ] App-Änderungen aus 0a (signierte URLs) deployen und Portfolio/Chat-Bilder testen (Typprüfung ok, nur bekannter Fehler ernaehrung/page.tsx)
+- [ ] `package-lock.json` passt nicht zu `package.json` (@sentry/nextjs, posthog-js fehlen im Lockfile) → `npm install` und Lockfile committen
 - [ ] Schutz vor geleakten Passwörtern in Supabase Auth einschalten
 - [ ] TypeScript-Fehler in `src/app/(dashboard)/admin/ernaehrung/page.tsx:135`
 - [ ] Tests für Rechte (RLS) und DSGVO ergänzen (bisher 6 E2E-Tests)
