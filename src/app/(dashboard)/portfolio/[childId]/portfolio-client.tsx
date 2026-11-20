@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { X, ChevronLeft, ChevronRight, Download, ZoomIn } from 'lucide-react'
+import { portfolioFileUrl } from '@/lib/portfolio-url'
 
 interface Entry {
   id: string
@@ -45,10 +46,8 @@ export default function PortfolioClient({ entries, photos, categoryConfig }: Pro
   const [lightbox, setLightbox] = useState<{ items: LightboxItem[]; idx: number } | null>(null)
   const [activeTab, setActiveTab] = useState<'eintraege' | 'fotos'>('eintraege')
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-
   function photoUrl(path: string) {
-    return `${supabaseUrl}/storage/v1/object/public/portfolio/${path}`
+    return portfolioFileUrl(path)
   }
 
   // Build photo lightbox items

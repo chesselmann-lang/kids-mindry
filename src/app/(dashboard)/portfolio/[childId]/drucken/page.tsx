@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import PrintButton from './print-button'
+import { portfolioFileUrl } from '@/lib/portfolio-url'
 
 const categoryLabels: Record<string, string> = {
   allgemein: 'Allgemein',  sozial: 'Soziale Entwicklung',
@@ -42,7 +43,6 @@ export default async function PortfolioDruckenPage({ params }: { params: { child
     .order('taken_at', { ascending: true })
     .limit(20)
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
   const age = child.date_of_birth
     ? Math.floor((Date.now() - new Date(child.date_of_birth).getTime()) / (365.25 * 24 * 3600 * 1000))
     : null
@@ -113,7 +113,7 @@ export default async function PortfolioDruckenPage({ params }: { params: { child
               {(photos as any[]).map((photo: any) => (
                 <div key={photo.id} className="avoid-break">
                   <img
-                    src={`${supabaseUrl}/storage/v1/object/public/portfolio/${photo.storage_path}`}
+                    src={portfolioFileUrl(photo.storage_path)}
                     alt={photo.caption ?? ''}
                     className="w-full h-36 object-cover rounded-lg"
                   />

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useCallback } from 'react'
+import { portfolioFileUrl } from '@/lib/portfolio-url'
 import { Send, AlertCircle, ChevronDown, ChevronUp, ImagePlus, X, Loader2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
@@ -67,9 +68,10 @@ export default function MessageInput({ conversationId, currentUserId, isStaff = 
     const path = `messages/${conversationId}/${Date.now()}_${file.name.replace(/\s+/g, '_')}`
     const { data, error } = await supabase.storage.from('portfolio').upload(path, file, { contentType: file.type })
     if (!error && data) {
-      const { data: { publicUrl } } = supabase.storage.from('portfolio').getPublicUrl(data.path)
+      // Bucket ist privat: Abruf über die signierende API-Route (prüft Gesprächsteilnahme)
+      const url = portfolioFileUrl(data.path)
       const preview = URL.createObjectURL(file)
-      setAttachments(prev => [...prev, { url: publicUrl, name: file.name, preview }])
+      setAttachments(prev => [...prev, { url, name: file.name, preview }])
     }
     setUploading(false)
   }
