@@ -11,8 +11,10 @@
 
 ## Nächste Schritte
 
-1. Branch `chore/phase-0b-next-update` als Vorschau deployen und mit echtem Login durchklicken (Login, Chat inkl. Übersetzung, Portfolio-Foto, Dokumente, Stripe-Checkout), danach in `main` mergen und live deployen. Vercel-Projekt braucht Node ≥ 20.9.
-2. DSGVO-Löschung/-Export und die übrigen Zugriffe auf fehlende Tabellen klären (siehe Typfehler unten).
+1. Vorschau des Branches `chore/phase-0b-next-update` (Vercel, Region fra1, Alias `kids-mindry-git-chore-phase-0b-next-update-mindry.vercel.app`, nur mit Vercel-Login) mit echtem Konto durchklicken: Login, Chat inkl. Übersetzung, Portfolio-Foto, Dokumente, DSGVO-Export eines Testkindes. Ohne Login geprüft: Login-Seite 200, Weiterleitung, Sicherheits-Header, Datenbank ok.
+2. Danach in `main` mergen und live deployen (Produktion wechselt dabei von iad1/USA nach fra1).
+3. Fehlende Umgebungsvariablen in Vercel setzen – auch **live** fehlen laut `/api/health`: `ANTHROPIC_API_KEY` (alle KI-Funktionen aus), Stripe, Resend (E-Mail), Kiosk-PIN. Erst klären, ob KI mit Kinderdaten schon erlaubt ist (AVV, Regel 6).
+4. Übrige Zugriffe auf fehlende Tabellen klären (siehe Typfehler unten).
 
 ## Phasen
 
@@ -52,7 +54,7 @@ Mittel:
 - [x] `package-lock.json` neu erzeugt und passend zu `package.json` (Branch 0b)
 - [ ] Schutz vor geleakten Passwörtern in Supabase Auth einschalten
 - [x] TypeScript-Fehler in `src/app/(dashboard)/admin/ernaehrung/page.tsx:135` (Syntax `>` in JSX)
-- [ ] 186 weitere Typfehler – waren hinter dem Syntaxfehler und `ignoreBuildErrors` versteckt (anfangs 872). Build ignoriert sie weiterhin (`next.config.mjs`). Hauptursache: Code fragt Tabellen ab, die es in `kindergarten` nicht gibt: `weekly_reports`, `absence_requests`, `sismik_assessments`, `beobachtungen`, `calendar_events`, `child_milestones`, `group_activities`, `meal_plans`, `portfolio_items`, `protokolle`, `tagesjournal`, `tagesberichte`, `uebergabe_eintraege`, `nachrichten`, `ki_cockpit_prognosen`, `beobachtungs_audits_summary`. **Dringend:** `api/dsgvo/loeschen` und `api/dsgvo-kind-export` greifen auf fehlende Tabellen zu → DSGVO-Löschung/-Export prüfen. Danach `ignoreBuildErrors: false`.
+- [ ] 186 weitere Typfehler (jetzt 184) – waren hinter dem Syntaxfehler und `ignoreBuildErrors` versteckt (anfangs 872). Build ignoriert sie weiterhin (`next.config.mjs`). Hauptursache: Code fragt Tabellen ab, die es in `kindergarten` nicht gibt: `weekly_reports`, `absence_requests`, `sismik_assessments`, `beobachtungen`, `calendar_events`, `child_milestones`, `group_activities`, `meal_plans`, `portfolio_items`, `protokolle`, `tagesjournal`, `tagesberichte`, `uebergabe_eintraege`, `nachrichten`, `ki_cockpit_prognosen`, `beobachtungs_audits_summary`. DSGVO-Routen sind behoben (siehe Verlauf). Danach `ignoreBuildErrors: false`.
 - [ ] ESLint war nie eingerichtet; jetzt `eslint.config.mjs` (Next 16), `npm run lint` meldet 1.915 Fehler – schrittweise abbauen
 - [ ] Sentry im Browser ist inaktiv (`sentry.client.config.ts` wird ohne `withSentryConfig` nie geladen) → nach `instrumentation-client.ts` umziehen
 - [ ] `admin/ernaehrung`: fest eingebauter Demo-Hinweis („HACCP-Unterweisung Fr. Meier dringend!“) durch echte Daten ersetzen
@@ -74,6 +76,7 @@ Mittel:
 
 ## Verlauf
 
+- 20.11.2026: Phase 0b, Teil 2 (gleicher Branch): **DSGVO-Löschung** (`/api/dsgvo/loeschen`) arbeitete mit Service-Schlüssel über alle Einrichtungen, nutzte die fehlende Tabelle `tagesberichte` und die fehlende Spalte `children.notes` (Anonymisierung schlug immer fehl) → jetzt nur eigene Einrichtung, `anonymize_child_data`, `daily_reports`, Fehler werden gemeldet. Betroffen war nichts (1 Einrichtung, kein archiviertes Kind). **DSGVO-Export pro Kind** (`/api/dsgvo-kind-export`) fragte in 9 von 10 Abfragen nicht vorhandene Spalten ab und lieferte fast nur Stammdaten; Einrichtungsprüfung lief über `NEXT_PUBLIC_DEFAULT_SITE_ID` statt Profil → jetzt vollständige Zeilen, Abbruch statt unvollständigem Export, Prüfung über `profiles.site_id`. Vercel-Funktionen von iad1 (USA) auf fra1 (Frankfurt). Vorschau-Deploys gebaut.
 - 20.11.2026: Phase 0b auf Branch `chore/phase-0b-next-update`: Next.js 16.4.6 (Turbopack), React 19, Sentry 11, @supabase/ssr 0.12, supabase-js 2.119, lucide-react 1.x, Anthropic SDK 1.12, ESLint 9; Stripe bleibt auf 22.0.x (API-Version `2026-03-25.dahlia` unverändert). `middleware.ts` → `proxy.ts`, Request-APIs async (Codemod, 54 Dateien), doppelte `next.config.ts` entfernt (maßgeblich war immer `.mjs`), Supabase-Typen neu erzeugt (16 Tabellen fehlten), tsconfig: Ziel ES2017, Edge Functions ausgenommen. Nebenbei behoben: Übersetzungs-Route rief `anthropic()` auf (Laufzeitfehler), Icon `Chrome` gibt es in lucide 1.x nicht mehr (Dokumente-Seite wäre abgestürzt). Build grün, `npm audit` 0, lokaler Start: Login 200, Weiterleitung und Sicherheits-Header ok.
 - 20.11.2026: Phase 0a – Migrationen 019–023 auf `kindergarten` angewendet (Funktionen, RLS, Bucket portfolio privat, Rechteausweitung geschlossen); Sicherheitsberater ohne kritische Funde; App-Code live deployt (aus GitHub, Vercel-Projekt hat keine Git-Anbindung).
 

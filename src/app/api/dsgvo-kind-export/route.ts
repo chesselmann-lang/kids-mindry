@@ -35,7 +35,10 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'childId (UUID) fehlt oder ungültig' }, { status: 400 })
   }
 
-  const siteId = process.env.NEXT_PUBLIC_DEFAULT_SITE_ID!
+  const siteId = (profile as any)?.site_id as string | null
+  if (!siteId) {
+    return NextResponse.json({ error: 'Keine Einrichtung zugeordnet.' }, { status: 403 })
+  }
 
   // Site-Isolation: Kind muss zur eigenen Kita gehören
   const { data: child, error: childErr } = await supabase
@@ -52,30 +55,29 @@ export async function GET(req: NextRequest) {
   const c = child as any
   const childName = `${c.first_name}_${c.last_name}`.replace(/\s+/g, '_')
 
-  // Alle relevanten Tabellen parallel laden
-  const [
-    { data: attendance },
-    { data: reports },
-    { data: milestones },
-    { data: observations },
-    { data: guardians },
-    { data: meetings },
-    { data: foerderplaene },
-    { data: sismik },
-    { data: healthRecords },
-    { data: portfolio },
-  ] = await Promise.all([
-    supabase.from('attendance').select('date, status, notes').eq('child_id', childId).order('date'),
-    supabase.from('daily_reports').select('report_date, mood, activities, notes, sleep_hours, sleep_minutes, breakfast, lunch, snack').eq('child_id', childId).order('report_date'),
-    (supabase as any).from('milestones').select('title, category, achieved_at, description, notes').eq('child_id', childId).order('achieved_at'),
-    (supabase as any).from('observations').select('content, domain, created_at, created_by').eq('child_id', childId).order('created_at'),
-    supabase.from('guardians').select('relationship, is_primary, can_pickup, emergency_contact, profiles(full_name, email, phone)').eq('child_id', childId),
-    (supabase as any).from('parent_meetings').select('meeting_date, topics, agreements, next_meeting, attendees').eq('child_id', childId).order('meeting_date'),
-    (supabase as any).from('foerderplaene').select('title, ziele, massnahmen, status, created_at, updated_at').eq('child_id', childId).order('created_at'),
-    (supabase as any).from('sismik_assessments').select('score_total, scores, notes, completed_at').eq('child_id', childId).order('completed_at'),
-    (supabase as any).from('health_records').select('type, value, notes, recorded_at').eq('child_id', childId).order('recorded_at'),
-    (supabase as any).from('portfolio_entries').select('title, content, media_url, category, created_at').eq('child_id', childId).order('created_at'),
+  // Alle relevanten Tabellen parallel laden – vollständige Zeilen (Art. 15/20 DSGVO)
+  const db = supabase as any
+  const results = await Promise.all([
+    db.from('attendance').select('*').eq('child_id', childId).order('date'),
+    db.from('daily_reports').select('*').eq('child_id', childId).order('report_date'),
+    db.from('milestones').select('*').eq('child_id', childId).order('achieved_date'),
+    db.from('observations').select('*').eq('child_id', childId).order('created_at'),
+    db.from('guardians').select('*').eq('child_id', childId),
+    db.from('parent_meetings').select('*').eq('child_id', childId).order('meeting_date'),
+    db.from('foerderplaene').select('*').eq('child_id', childId).order('created_at'),
+    db.from('health_records').select('*').eq('child_id', childId).order('record_date'),
+    db.from('portfolio_entries').select('*').eq('child_id', childId).order('created_at'),
   ])
+  const failed = results.find((r: any) => r.error)
+  if (failed) {
+    // Lieber abbrechen als einen unvollständigen Export ausliefern
+    console.error('[dsgvo-kind-export] Abfrage fehlgeschlagen', failed.error)
+    return NextResponse.json({ error: 'Export unvollständig – bitte Support kontaktieren.' }, { status: 500 })
+  }
+  const [
+    attendance, reports, milestones, observations, guardians,
+    meetings, foerderplaene, healthRecords, portfolio,
+  ] = results.map((r: any) => (r.data ?? []) as any[])
 
   const exportedAt = new Date().toISOString()
   const dateLabel = format(new Date(), 'dd.MM.yyyy', { locale: de })
@@ -98,7 +100,6 @@ beobachtungen.json  - Pädagogische Beobachtungen
 erziehungsberechtigte.json - Erziehungsberechtigte
 elterngespraeche.json - Elterngespräch-Protokolle
 foerderplaene.json  - Förderpläne
-sismik.json         - SISMIK-Bewertungen
 gesundheit.json     - Gesundheitsdaten
 portfolio.json      - Portfolio-Einträge
 
@@ -111,36 +112,23 @@ Bei Fragen wenden Sie sich an: datenschutz@mindry.de
     'README.txt': strToU8(readme),
     'kind.json': toJsonBuffer({
       exportedAt,
-      stammdaten: {
-        vorname: c.first_name,
-        nachname: c.last_name,
-        geburtsdatum: c.date_of_birth,
-        geschlecht: c.gender,
-        gruppe: c.groups?.name ?? null,
-        aufnahmedatum: c.enrollment_date ?? null,
-        status: c.status,
-        allergien: c.allergies ?? null,
-        medizinische_hinweise: c.medical_notes ?? null,
-      },
+      gruppe: c.groups?.name ?? null,
+      stammdaten: Object.fromEntries(Object.entries(c).filter(([k]) => k !== 'groups')),
     }),
-    'anwesenheit.json': toJsonBuffer({ exportedAt, eintraege: attendance ?? [] }),
-    'tagesberichte.json': toJsonBuffer({ exportedAt, eintraege: reports ?? [] }),
-    'meilensteine.json': toJsonBuffer({ exportedAt, eintraege: milestones ?? [] }),
-    'beobachtungen.json': toJsonBuffer({ exportedAt, eintraege: observations ?? [] }),
-    'erziehungsberechtigte.json': toJsonBuffer({ exportedAt, eintraege: (guardians ?? []).map((g: any) => ({
-      beziehung: g.relationship,
-      hauptkontakt: g.is_primary,
-      abholberechtigt: g.can_pickup,
-      notfallkontakt: g.emergency_contact,
-      name: g.profiles?.full_name ?? null,
+    'anwesenheit.json': toJsonBuffer({ exportedAt, eintraege: attendance }),
+    'tagesberichte.json': toJsonBuffer({ exportedAt, eintraege: reports }),
+    'meilensteine.json': toJsonBuffer({ exportedAt, eintraege: milestones }),
+    'beobachtungen.json': toJsonBuffer({ exportedAt, eintraege: observations }),
+    'erziehungsberechtigte.json': toJsonBuffer({ exportedAt, eintraege: guardians.map((g: any) => {
       // E-Mail + Telefon aus Datenschutzgründen nur für Admin
-      ...(role === 'admin' ? { email: g.profiles?.email, telefon: g.profiles?.phone } : {}),
-    })) }),
-    'elterngespraeche.json': toJsonBuffer({ exportedAt, eintraege: meetings ?? [] }),
-    'foerderplaene.json': toJsonBuffer({ exportedAt, eintraege: foerderplaene ?? [] }),
-    'sismik.json': toJsonBuffer({ exportedAt, eintraege: sismik ?? [] }),
-    'gesundheit.json': toJsonBuffer({ exportedAt, eintraege: healthRecords ?? [] }),
-    'portfolio.json': toJsonBuffer({ exportedAt, eintraege: portfolio ?? [] }),
+      if (role === 'admin') return g
+      const { email: _e, phone: _p, ...rest } = g
+      return rest
+    }) }),
+    'elterngespraeche.json': toJsonBuffer({ exportedAt, eintraege: meetings }),
+    'foerderplaene.json': toJsonBuffer({ exportedAt, eintraege: foerderplaene }),
+    'gesundheit.json': toJsonBuffer({ exportedAt, eintraege: healthRecords }),
+    'portfolio.json': toJsonBuffer({ exportedAt, eintraege: portfolio }),
   }
 
   // ZIP erstellen (synchron mit fflate)
@@ -152,18 +140,19 @@ Bei Fragen wenden Sie sich an: datenschutz@mindry.de
   })
 
   // Audit-Log
-  supabase.from('audit_logs').insert({
+  const { error: logError } = await supabase.from('audit_logs').insert({
     site_id: siteId,
     user_id: user.id,
     action: 'dsgvo_kind_export',
     table_name: 'children',
     record_id: childId,
     changes: { exported_at: exportedAt, exported_by_role: role },
-  }).then(() => {}).catch(() => {})
+  })
+  if (logError) console.error('[dsgvo-kind-export] Audit-Log fehlgeschlagen', logError)
 
   const filename = `dsgvo_export_${childName}_${dateLabel.replace(/\./g, '-')}.zip`
 
-  return new NextResponse(zipBuffer, {
+  return new NextResponse(new Uint8Array(zipBuffer), {
     headers: {
       'Content-Type': 'application/zip',
       'Content-Disposition': `attachment; filename="${filename}"`,
