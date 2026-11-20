@@ -1,0 +1,14 @@
+---
+description: Grundregeln für KitaHub
+alwaysApply: true
+---
+
+# KitaHub: Grundregeln für KI-Assistenten und Mitarbeitende
+
+- Kommunikation und Doku auf Deutsch. Code und Kommentare dürfen deutsch oder englisch sein.
+- Nichts erfinden: keine Zugangsdaten, Firmendaten, Preise, Referenzen, Qualifikationen oder Rechtstexte. Unklares als offene Frage festhalten.
+- Zugangsdaten gehören nie ins Repository oder in den Chat. Vorlage in `.env.example`, echte Werte nur in `.env.local` bzw. in der Hosting-Oberfläche.
+- Keine echten Kunden-, Zahlungs- oder Nachrichtendaten für Tests. Testdaten immer mit "TEST" kennzeichnen.
+- Vor jedem Commit bauen und prüfen (siehe `docs/entwicklung.md`). Kleine, nachvollziehbare Commits mit aussagekräftiger Nachricht.
+- Vor dem Veröffentlichen immer erst eine Vorschau prüfen und Freigabe einholen. Rückweg bereithalten (Backup oder vorheriger Stand).
+- Dateien nicht löschen oder überschreiben, ohne dass klar ist, was verloren geht.
