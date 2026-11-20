@@ -25,6 +25,7 @@ export default function DsgvoLoeschungPage() {
     try {
       const res = await fetch('/api/dsgvo/loeschen')
       const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? 'Vorschau fehlgeschlagen')
       setPreview(data)
     } catch (e: any) { setError(e.message) }
     setLoading(false)
@@ -44,6 +45,7 @@ export default function DsgvoLoeschungPage() {
       if (!res.ok) throw new Error(data.error)
       setDone(data.geloescht)
       setPreview(null)
+      if (data.fehler?.length) setError(`Teilweise fehlgeschlagen: ${data.fehler.join('; ')}`)
     } catch (e: any) { setError(e.message) }
     setLoading(false)
   }
