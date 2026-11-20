@@ -42,7 +42,8 @@ Hoch:
 
 Mittel:
 - [ ] Bucket `kita-docs`: Lesen/Hochladen/Löschen für alle Angemeldeten → auf Einrichtung beschränken
-- [ ] App-Änderungen aus 0a (signierte URLs) deployen und Portfolio/Chat-Bilder testen (Typprüfung ok, nur bekannter Fehler ernaehrung/page.tsx)
+- [x] App-Änderungen aus 0a live (Vercel-Deploy aus GitHub `ca1a108`, 20.11.2026); Startseite/Login antworten normal
+- [ ] Portfolio-Foto-Upload und Chat-Bild mit echtem Login testen
 - [ ] `package-lock.json` passt nicht zu `package.json` (@sentry/nextjs, posthog-js fehlen im Lockfile) → `npm install` und Lockfile committen
 - [ ] Schutz vor geleakten Passwörtern in Supabase Auth einschalten
 - [ ] TypeScript-Fehler in `src/app/(dashboard)/admin/ernaehrung/page.tsx:135`
@@ -65,7 +66,7 @@ Mittel:
 
 ## Verlauf
 
-- 20.11.2026: Phase 0a – Migrationen 019–023 auf `kindergarten` angewendet (Funktionen, RLS, Bucket portfolio privat, Rechteausweitung geschlossen); Sicherheitsberater ohne kritische Funde.
+- 20.11.2026: Phase 0a – Migrationen 019–023 auf `kindergarten` angewendet (Funktionen, RLS, Bucket portfolio privat, Rechteausweitung geschlossen); Sicherheitsberater ohne kritische Funde; App-Code live deployt (aus GitHub, Vercel-Projekt hat keine Git-Anbindung).
 
 - 19.11.2026: Vollständige Sicherung aller Kita-Daten; Live-Stand (Vercel 06.05.2026) erstmals auf GitHub gesichert.
 - 20.11.2026: Fundament-Audit, Fahrplan, Projektordner `kitahub` angelegt.
