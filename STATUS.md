@@ -25,7 +25,9 @@
 
 ## Nächster Schritt
 
-Next.js-Update auf 15 nach `docs/next-update-vorbereitung.md`; vorher Migration 028 anwenden.
+1. Migration 028 anwenden (Supabase-Bestätigung nötig)
+2. Stand `1d2baad` deployen (Vercel) und Galerie/Portfolio/Chat mit echtem Login testen
+3. Next.js-Update auf 15 nach `docs/next-update-vorbereitung.md`
 
 ## Phase 0 – offene Punkte (Audit vom 20.11.2026)
 
@@ -61,7 +63,7 @@ Mittel:
 - [x] App-Änderungen aus 0a live (Vercel-Deploy aus GitHub `ca1a108`, 20.11.2026); Startseite/Login antworten normal
 - [ ] Portfolio-Foto-Upload und Chat-Bild mit echtem Login testen
 - [x] Lockfile synchron
-- [ ] Schutz vor geleakten Passwörtern in Supabase Auth einschalten
+- [x] Schutz vor geleakten Passwörtern in Supabase Auth eingeschaltet (20.11.2026)
 - [ ] TypeScript-Fehler in `src/app/(dashboard)/admin/ernaehrung/page.tsx:135`
 - [ ] Tests für Rechte (RLS) und DSGVO ergänzen (bisher 6 E2E-Tests)
 - [ ] 144 KI-Routen bündeln, Modell je Aufgabe wählen
