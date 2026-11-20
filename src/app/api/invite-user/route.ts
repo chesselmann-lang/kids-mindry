@@ -25,6 +25,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Ungültige Rolle' }, { status: 400 })
     }
 
+    // Gruppenleitungen dürfen keine Admins oder weitere Gruppenleitungen einladen
+    if (['admin', 'group_lead'].includes(role) && profile?.role !== 'admin') {
+      return NextResponse.json({ error: 'Nur Admins dürfen diese Rolle vergeben' }, { status: 403 })
+    }
+
     // Use service role key (server-side only) for admin invite
     const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
     if (!serviceKey) {
@@ -39,7 +44,8 @@ export async function POST(req: NextRequest) {
       { auth: { autoRefreshToken: false, persistSession: false } }
     )
 
-    const siteId = process.env.NEXT_PUBLIC_DEFAULT_SITE_ID!
+    // Eingeladene landen in der Einrichtung der einladenden Person
+    const siteId = (profile as any)?.site_id ?? process.env.NEXT_PUBLIC_DEFAULT_SITE_ID!
 
     const { data, error } = await adminClient.auth.admin.inviteUserByEmail(email, {
       data: {
