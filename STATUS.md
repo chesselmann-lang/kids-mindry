@@ -27,7 +27,7 @@
 
 Kritisch:
 - [x] NEU gefunden: Rechteausweitung – Nutzer konnten eigene `role`/`site_id` ändern und sich bei Registrierung als admin anlegen → Trigger `protect_profile_privileges`, `handle_new_user` übernimmt Rolle/Einrichtung/Kind nur bei Einladungen (022)
-- [ ] **Migration 023 noch nicht angewendet** (Datei liegt bereit): Richtlinie „Admins can view all profiles“ ist rekursiv → jede Profilabfrage angemeldeter Nutzer bricht mit 42P17 ab (bestand schon vorher); neue Richtlinie zudem auf eigene Einrichtung beschränkt. Freigabe durch Christian nötig
+- [x] Rekursion in profiles-Richtlinie behoben (jede Profilabfrage brach mit 42P17 ab), Profile nur noch für Personal der eigenen Einrichtung sichtbar (023)
 - [x] `anonymize_child_data`: nur noch service_role, Admin-Prüfung im Funktionskörper (Migration 019)
 - [x] Bucket `portfolio` privat, Richtlinien nach Einrichtung/Eltern-Freigabe/Gesprächsteilnehmer (021); App lädt über `/api/storage/portfolio` (signierte URLs)
 - [x] `portfolio_entries` / `portfolio_photos`: `true`-Richtlinien entfernt (020)
@@ -65,7 +65,7 @@ Mittel:
 
 ## Verlauf
 
-- 20.11.2026: Phase 0a – Migrationen 019–022 auf `kindergarten` angewendet (Funktionen, RLS, Bucket portfolio privat, Rechteausweitung geschlossen); Sicherheitsberater ohne kritische Funde; 023 vorbereitet.
+- 20.11.2026: Phase 0a – Migrationen 019–023 auf `kindergarten` angewendet (Funktionen, RLS, Bucket portfolio privat, Rechteausweitung geschlossen); Sicherheitsberater ohne kritische Funde.
 
 - 19.11.2026: Vollständige Sicherung aller Kita-Daten; Live-Stand (Vercel 06.05.2026) erstmals auf GitHub gesichert.
 - 20.11.2026: Fundament-Audit, Fahrplan, Projektordner `kitahub` angelegt.
