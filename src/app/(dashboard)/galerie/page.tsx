@@ -10,11 +10,12 @@ import AiGalerieAnalyse from './ai-galerie-analyse'
 
 export const metadata = { title: 'Galerie' }
 
-export default async function GaleriePage({
-  searchParams,
-}: {
-  searchParams: { group?: string }
-}) {
+export default async function GaleriePage(
+  props: {
+    searchParams: Promise<{ group?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null

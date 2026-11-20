@@ -7,7 +7,8 @@ import AiIntern from './ai-intern'
 
 export const metadata = { title: 'Team-Chat' }
 
-export default async function InternChatPage({ params }: { params: { groupId: string } }) {
+export default async function InternChatPage(props: { params: Promise<{ groupId: string }> }) {
+  const params = await props.params;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

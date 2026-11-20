@@ -6,7 +6,8 @@ import { BarChart2 } from 'lucide-react'
 
 export const metadata = { title: 'Umfrage' }
 
-export default async function BefragungResponsePage({ params }: { params: { surveyId: string } }) {
+export default async function BefragungResponsePage(props: { params: Promise<{ surveyId: string }> }) {
+  const params = await props.params;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

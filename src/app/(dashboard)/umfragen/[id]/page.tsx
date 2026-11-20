@@ -5,7 +5,8 @@ import { ArrowLeft } from 'lucide-react'
 import PollVote from './poll-vote'
 import AiUmfragen from './ai-umfragen'
 
-export default async function PollDetailPage({ params }: { params: { id: string } }) {
+export default async function PollDetailPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

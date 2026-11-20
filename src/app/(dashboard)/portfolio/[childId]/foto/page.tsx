@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, use } from 'react';
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Camera, Upload, Loader2, X, CheckCircle2 } from 'lucide-react'
 
-export default function PortfolioFotoPage({ params }: { params: { childId: string } }) {
+export default function PortfolioFotoPage(props: { params: Promise<{ childId: string }> }) {
+  const params = use(props.params);
   const router = useRouter()
   const supabase = createClient()
   const siteId = process.env.NEXT_PUBLIC_DEFAULT_SITE_ID!

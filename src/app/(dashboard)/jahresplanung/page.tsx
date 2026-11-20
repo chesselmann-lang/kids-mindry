@@ -17,9 +17,8 @@ const EVENT_TYPES: Record<string, { label: string; color: string; bg: string }> 
   other:    { label: 'Sonstiges',    color: 'text-gray-700',   bg: 'bg-gray-100' },
 }
 
-export default async function JahresplanungPage({
-  searchParams,
-}: { searchParams: { year?: string } }) {
+export default async function JahresplanungPage(props: { searchParams: Promise<{ year?: string }> }) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

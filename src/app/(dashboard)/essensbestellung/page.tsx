@@ -10,11 +10,12 @@ export const metadata = { title: 'Essensbestellung' }
 const dayKeys = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']
 const dayLabels = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag']
 
-export default async function EssensbestellungPage({
-  searchParams,
-}: {
-  searchParams: { week?: string }
-}) {
+export default async function EssensbestellungPage(
+  props: {
+    searchParams: Promise<{ week?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

@@ -6,11 +6,12 @@ import AiProtokollEntwurf from './ai-protokoll-entwurf'
 
 export const metadata = { title: 'Protokoll bearbeiten' }
 
-export default async function NeuesProtokollPage({
-  searchParams,
-}: {
-  searchParams: { id?: string }
-}) {
+export default async function NeuesProtokollPage(
+  props: {
+    searchParams: Promise<{ id?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

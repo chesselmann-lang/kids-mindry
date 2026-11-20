@@ -16,11 +16,12 @@ function workingDaysInMonth(year: number, month: number): number {
     .filter(d => getDay(d) >= 1 && getDay(d) <= 5).length
 }
 
-export default async function StatistikPage({
-  searchParams,
-}: {
-  searchParams: { month?: string }
-}) {
+export default async function StatistikPage(
+  props: {
+    searchParams: Promise<{ month?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

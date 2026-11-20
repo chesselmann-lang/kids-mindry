@@ -5,8 +5,9 @@ import PublicCheckinClient from './public-checkin-client'
 
 export const metadata = { title: 'Check-in' }
 
-export default async function PublicCheckinPage({ params }: { params: { childId: string } }) {
-  const cookieStore = cookies()
+export default async function PublicCheckinPage(props: { params: Promise<{ childId: string }> }) {
+  const params = await props.params;
+  const cookieStore = await cookies()
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,

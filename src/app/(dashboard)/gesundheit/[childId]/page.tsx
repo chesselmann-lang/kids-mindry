@@ -18,7 +18,8 @@ const RECORD_TYPE_CONFIG: Record<string, { label: string; color: string; bg: str
   other:       { label: 'Sonstiges',    color: 'text-gray-700',   bg: 'bg-gray-100',   emoji: '📝' },
 }
 
-export default async function GesundheitPage({ params }: { params: { childId: string } }) {
+export default async function GesundheitPage(props: { params: Promise<{ childId: string }> }) {
+  const params = await props.params;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

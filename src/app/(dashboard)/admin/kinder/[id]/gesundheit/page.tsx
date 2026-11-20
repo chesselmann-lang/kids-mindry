@@ -7,7 +7,8 @@ import AiGesundheit from './ai-gesundheit'
 
 export const metadata = { title: 'Gesundheit & Betreuung' }
 
-export default async function GesundheitPage({ params }: { params: { id: string } }) {
+export default async function GesundheitPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

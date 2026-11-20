@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const response = await anthropic().messages.create({
+    const response = await anthropic.messages.create({
       model: AI_MODEL,
       max_tokens: 1024,
       system: `Du bist ein professioneller Übersetzer für ein deutsches Kita-Verwaltungssystem.

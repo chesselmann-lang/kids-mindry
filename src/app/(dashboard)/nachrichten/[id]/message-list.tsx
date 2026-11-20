@@ -367,7 +367,7 @@ export default function MessageList({ initialMessages, conversationId, currentUs
               <span className={`text-[10px] px-1 flex items-center gap-1 ${isMe ? 'text-gray-400' : 'text-gray-400'}`}>
                 {formatMsgTime(msg.created_at)}
                 {isMe && otherLastReadAt && msg.created_at <= otherLastReadAt && (
-                  <CheckCheck size={11} className="text-brand-500 flex-shrink-0" title="Gelesen" />
+                  <CheckCheck size={11} className="text-brand-500 flex-shrink-0" aria-label="Gelesen"><title>Gelesen</title></CheckCheck>
                 )}
               </span>
             </div>

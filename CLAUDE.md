@@ -19,7 +19,7 @@ Betreiber: Christian Hesselmann. Pilot: die vier Kitas von Katja Koch (Schatzkis
 
 ## Stack
 
-Next.js 14.2 (App Router, Update auf 15/16 geplant) · React 18 · TypeScript · Tailwind · Supabase (Auth, Postgres mit RLS, Storage, Realtime, Edge Functions) ·
+Next.js 16 (App Router, Turbopack, `src/proxy.ts` statt Middleware) · React 19 · TypeScript · Tailwind · Supabase (Auth, Postgres mit RLS, Storage, Realtime, Edge Functions) ·
 Claude API über `src/lib/anthropic.ts` · Stripe · DeepL · Web-Push · Sentry · Playwright (`e2e/`).
 Installation: `npm install --legacy-peer-deps`. Lokal `NODE_ENV` nicht auf `production` lassen (sonst fehlen Dev-Pakete).
 

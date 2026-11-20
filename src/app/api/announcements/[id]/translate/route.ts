@@ -14,7 +14,8 @@ async function translateText(text: string, targetLang: string): Promise<string> 
   return data.translations?.[0]?.text ?? text
 }
 
-export async function POST(req: Request, { params }: { params: { id: string } }) {
+export async function POST(req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -52,7 +53,8 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   return NextResponse.json({ translated: results.length, languages: targetLangs })
 }
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const { searchParams } = new URL(req.url)
   const lang = searchParams.get('lang') ?? 'en'
   const supabase = await createClient()

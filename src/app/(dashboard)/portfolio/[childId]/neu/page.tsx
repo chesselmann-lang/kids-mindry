@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, use } from 'react';
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Loader2, Save, BookOpen, Heart, Zap, MessageSquare, Brain, Leaf, Smile, Shapes } from 'lucide-react'
@@ -17,7 +17,8 @@ const categories = [
   { value: 'natur',     label: 'Natur',     icon: Leaf,         color: '#10b981' },
 ]
 
-export default function PortfolioNeuPage({ params }: { params: { childId: string } }) {
+export default function PortfolioNeuPage(props: { params: Promise<{ childId: string }> }) {
+  const params = use(props.params);
   const router = useRouter()
   const supabase = createClient()
   const siteId = process.env.NEXT_PUBLIC_DEFAULT_SITE_ID!

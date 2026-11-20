@@ -14,11 +14,12 @@ const STATUS_LABELS: Record<string, { label: string; color: string; short: strin
   absent_other:    { label: 'Sonstiges', color: 'bg-gray-100 text-gray-600', short: 'S' },
 }
 
-export default async function AbwesenheitenPage({
-  searchParams,
-}: {
-  searchParams: { from?: string; to?: string; status?: string }
-}) {
+export default async function AbwesenheitenPage(
+  props: {
+    searchParams: Promise<{ from?: string; to?: string; status?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

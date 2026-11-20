@@ -6,7 +6,8 @@ import AiGuardian from './ai-guardian'
 
 export const metadata = { title: 'Erziehungsberechtigte' }
 
-export default async function GuardiansPage({ params }: { params: { id: string } }) {
+export default async function GuardiansPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

@@ -22,9 +22,8 @@ function workingDays(start: Date, end: Date): number {
   }).length
 }
 
-export default async function StatistikenPage({
-  searchParams
-}: { searchParams: { month?: string } }) {
+export default async function StatistikenPage(props: { searchParams: Promise<{ month?: string }> }) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

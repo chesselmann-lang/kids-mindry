@@ -14,10 +14,8 @@ const SERVICE_KEY     = process.env.SUPABASE_SERVICE_ROLE_KEY!
 const SITE_ID         = process.env.NEXT_PUBLIC_DEFAULT_SITE_ID!
 const APP_URL         = process.env.NEXT_PUBLIC_APP_URL ?? 'https://kids.mindry.de'
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function POST(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   // Don't block message send — always return quickly, push is best-effort
   const conversationId = params.id
 

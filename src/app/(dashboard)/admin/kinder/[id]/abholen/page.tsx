@@ -7,7 +7,8 @@ import AiAbholen from './ai-abholen'
 
 export const metadata = { title: 'Abholberechtigte' }
 
-export default async function AbholenPage({ params }: { params: { id: string } }) {
+export default async function AbholenPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

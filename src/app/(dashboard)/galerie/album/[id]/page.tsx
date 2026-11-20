@@ -8,13 +8,15 @@ import type { Album, MediaAsset } from '@/types/database'
 import AlbumGrid from './album-grid'
 import AiGalerie from './ai-galerie'
 
-export async function generateMetadata({ params }: { params: { id: string } }) {
+export async function generateMetadata(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const supabase = await createClient()
   const { data: album } = await supabase.from('albums').select('title').eq('id', params.id).single()
   return { title: album?.title ?? 'Album' }
 }
 
-export default async function AlbumDetailPage({ params }: { params: { id: string } }) {
+export default async function AlbumDetailPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null

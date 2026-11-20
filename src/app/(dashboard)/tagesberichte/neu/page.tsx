@@ -5,11 +5,12 @@ import AiTagesberichtNeu from './ai-tagesbericht-neu'
 
 export const metadata = { title: 'Tagesbericht erstellen' }
 
-export default async function NeuerTagesberichtPage({
-  searchParams,
-}: {
-  searchParams: { child?: string }
-}) {
+export default async function NeuerTagesberichtPage(
+  props: {
+    searchParams: Promise<{ child?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null

@@ -8,11 +8,12 @@ import AiMonatsbrief from './ai-monatsbrief'
 
 export const metadata = { title: 'Monatsrückblick' }
 
-export default async function MonatsrueckblickPage({
-  searchParams,
-}: {
-  searchParams: { month?: string }
-}) {
+export default async function MonatsrueckblickPage(
+  props: {
+    searchParams: Promise<{ month?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
@@ -59,26 +60,26 @@ export default async function MonatsrueckblickPage({
   // Aggregate attendance by date
   const attByDate: Record<string, { present: number; sick: number; absent: number }> = {}
   ;(attendance ?? []).forEach((a: any) => {
-    if (!attByDate[a.date]) attByDate[a.date] = { present: 0, sick: 0, absent: 0 }
-    if (a.status === 'present') attByDate[a.date].present++
-    else if (a.status === 'absent_sick') attByDate[a.date].sick++
-    else attByDate[a.date].absent++
-  })
+      if (!attByDate[a.date]) attByDate[a.date] = { present: 0, sick: 0, absent: 0 }
+      if (a.status === 'present') attByDate[a.date].present++
+      else if (a.status === 'absent_sick') attByDate[a.date].sick++
+      else attByDate[a.date].absent++
+    })
 
   // Events by date
   const eventsByDate: Record<string, any[]> = {}
   ;(events ?? []).forEach((e: any) => {
-    const d = e.starts_at.split('T')[0]
-    if (!eventsByDate[d]) eventsByDate[d] = []
-    eventsByDate[d].push(e)
-  })
+      const d = e.starts_at.split('T')[0]
+      if (!eventsByDate[d]) eventsByDate[d] = []
+      eventsByDate[d].push(e)
+    })
 
   // Incidents by date
   const incidentsByDate: Record<string, number> = {}
   ;(incidents ?? []).forEach((i: any) => {
-    const d = i.created_at.split('T')[0]
-    incidentsByDate[d] = (incidentsByDate[d] ?? 0) + 1
-  })
+      const d = i.created_at.split('T')[0]
+      incidentsByDate[d] = (incidentsByDate[d] ?? 0) + 1
+    })
 
   // Calendar grid
   const days = eachDayOfInterval({ start: monthStart, end: monthEnd })

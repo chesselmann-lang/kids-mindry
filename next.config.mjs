@@ -40,13 +40,10 @@ const PERMISSIONS_POLICY = [
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   typescript: {
-    // Supabase SDK v2.49+ uses PostgrestVersion in schema inference which
-    // requires the supabase CLI to regenerate types. Our manual types are
-    // correct at runtime; disabling build-time type errors here.
+    // TODO Phase 0: Typen wurden am 20.11.2026 neu aus Supabase erzeugt.
+    // Restliche Fehler (u. a. Code greift auf nicht vorhandene Tabellen zu)
+    // stehen in STATUS.md. Erst danach auf false stellen.
     ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
   },
   images: {
     remotePatterns: [

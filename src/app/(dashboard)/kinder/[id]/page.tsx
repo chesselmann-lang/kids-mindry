@@ -7,7 +7,8 @@ import KindSnapshot from './kind-snapshot'
 import AiJahresrueckblick from './ai-jahresrueckblick'
 import AiGrundschulBericht from './ai-grundschul-bericht'
 
-export default async function KindDetailPage({ params }: { params: { id: string } }) {
+export default async function KindDetailPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null

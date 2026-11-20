@@ -6,7 +6,8 @@ import { format } from 'date-fns'
 import { de } from 'date-fns/locale'
 import AiProtokoll from './ai-protokoll'
 
-export default async function ProtokollDetailPage({ params }: { params: { id: string } }) {
+export default async function ProtokollDetailPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

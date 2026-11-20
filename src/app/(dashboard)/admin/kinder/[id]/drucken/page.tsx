@@ -8,7 +8,8 @@ import PrintButton from './print-button'
 
 export const metadata = { title: 'Kind-Profil Drucken' }
 
-export default async function DruckenPage({ params }: { params: { id: string } }) {
+export default async function DruckenPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

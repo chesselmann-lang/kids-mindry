@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import {
   FileText, Plus, ExternalLink, Loader2, Link2,
-  Chrome, Briefcase, CheckCircle2, AlertCircle
+  Globe, Briefcase, CheckCircle2, AlertCircle
 } from 'lucide-react'
 
 type Provider = 'google' | 'microsoft'
@@ -245,7 +245,7 @@ export default function DokumenteClient({ integrations, isAdmin }: Props) {
               tab === p ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-700'
             }`}
           >
-            {p === 'google' ? <Chrome size={15} /> : <Briefcase size={15} />}
+            {p === 'google' ? <Globe size={15} /> : <Briefcase size={15} />}
             {p === 'google' ? 'Google Drive' : 'OneDrive'}
             {getIntegration(p) && (
               <span className="w-1.5 h-1.5 rounded-full bg-green-500" />

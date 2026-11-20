@@ -41,11 +41,12 @@ function formatWeekLabel(date: Date): string {
   return `${date.toLocaleDateString('de-DE', opts)} – ${end.toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })}`
 }
 
-export default async function SpeiseplanPage({
-  searchParams,
-}: {
-  searchParams: { week?: string }
-}) {
+export default async function SpeiseplanPage(
+  props: {
+    searchParams: Promise<{ week?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null

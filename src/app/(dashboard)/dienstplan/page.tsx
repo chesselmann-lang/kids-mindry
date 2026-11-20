@@ -9,9 +9,8 @@ import AiDienstplanAnalyse from './ai-dienstplan-analyse'
 
 export const metadata = { title: 'Dienstplan' }
 
-export default async function DienstplanPage({
-  searchParams
-}: { searchParams: { week?: string } }) {
+export default async function DienstplanPage(props: { searchParams: Promise<{ week?: string }> }) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

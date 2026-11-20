@@ -19,9 +19,8 @@ const DOMAIN_CONFIG: Record<string, { label: string; color: string; emoji: strin
   emotional:    { label: 'Emotional',     color: 'bg-rose-100 text-rose-700',    emoji: '❤️' },
 }
 
-export default async function BeobachtungenPage({
-  searchParams
-}: { searchParams: { child?: string } }) {
+export default async function BeobachtungenPage(props: { searchParams: Promise<{ child?: string }> }) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

@@ -10,11 +10,12 @@ import AiSuche from './ai-suche'
 
 export const metadata = { title: 'Suche' }
 
-export default async function SuchePage({
-  searchParams,
-}: {
-  searchParams: { q?: string }
-}) {
+export default async function SuchePage(
+  props: {
+    searchParams: Promise<{ q?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

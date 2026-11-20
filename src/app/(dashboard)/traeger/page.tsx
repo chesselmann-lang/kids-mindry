@@ -5,7 +5,7 @@ import TraegerClient from './traeger-client'
 import AiTraegerAnalyse from './ai-traeger-analyse'
 
 export default async function TraegerDashboardPage() {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,

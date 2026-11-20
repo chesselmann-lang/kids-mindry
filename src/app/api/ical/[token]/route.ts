@@ -2,11 +2,11 @@ import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 
 function icsDate(dateStr: string): string {
-  return dateStr.replace(/-/g, '')
+  return dateStr.replace(/-/g, '');
 }
 
 function icsDateTime(date: Date): string {
-  return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'
+  return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
 }
 
 function escapeIcs(str: string): string {
@@ -15,7 +15,7 @@ function escapeIcs(str: string): string {
     .replace(/;/g, '\\;')
     .replace(/,/g, '\\,')
     .replace(/\n/g, '\\n')
-    .replace(/\r/g, '')
+    .replace(/\r/g, '');
 }
 
 function foldLine(line: string): string {
@@ -32,10 +32,8 @@ function foldLine(line: string): string {
 }
 
 // Public iCal feed — no session auth, uses token
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { token: string } }
-) {
+export async function GET(req: NextRequest, props: { params: Promise<{ token: string }> }) {
+  const params = await props.params;
   const supabase = await createClient()
 
   const { data: tokenRow } = await supabase

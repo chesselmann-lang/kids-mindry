@@ -6,11 +6,12 @@ import AiSteuer from './ai-steuer'
 
 export const metadata = { title: 'Steuerbescheinigung' }
 
-export default async function SteuerbescheinigungPage({
-  searchParams,
-}: {
-  searchParams: { year?: string }
-}) {
+export default async function SteuerbescheinigungPage(
+  props: {
+    searchParams: Promise<{ year?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

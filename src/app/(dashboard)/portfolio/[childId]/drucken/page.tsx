@@ -15,7 +15,8 @@ const categoryColors: Record<string, string> = {
   kreativ: '#8b5cf6', kognitiv: '#06b6d4', emotional: '#f97316', natur: '#10b981',
 }
 
-export default async function PortfolioDruckenPage({ params }: { params: { childId: string } }) {
+export default async function PortfolioDruckenPage(props: { params: Promise<{ childId: string }> }) {
+  const params = await props.params;
   const supabase = await createClient()
   const siteId = process.env.NEXT_PUBLIC_DEFAULT_SITE_ID!
 

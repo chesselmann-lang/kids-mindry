@@ -7,7 +7,8 @@ import AiKindVerlaufAnalyse from './ai-kind-verlauf-analyse'
 
 export const metadata = { title: 'Kind-Timeline' }
 
-export default async function KindTimelinePage({ params }: { params: { childId: string } }) {
+export default async function KindTimelinePage(props: { params: Promise<{ childId: string }> }) {
+  const params = await props.params;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

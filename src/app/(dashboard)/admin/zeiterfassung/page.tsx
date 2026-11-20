@@ -14,9 +14,8 @@ function formatDuration(minutes: number): string {
   return `${h}:${m.toString().padStart(2, '0')} h`
 }
 
-export default async function AdminZeiterfassungPage({
-  searchParams,
-}: { searchParams: { week?: string } }) {
+export default async function AdminZeiterfassungPage(props: { searchParams: Promise<{ week?: string }> }) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

@@ -5,7 +5,8 @@ import AiCheckin from './ai-checkin'
 
 export const metadata = { title: 'Check-in' }
 
-export default async function CheckinPage({ params }: { params: { childId: string } }) {
+export default async function CheckinPage(props: { params: Promise<{ childId: string }> }) {
+  const params = await props.params;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect(`/login?redirect=/checkin/${params.childId}`)

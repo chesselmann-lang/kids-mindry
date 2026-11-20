@@ -8,9 +8,8 @@ import AiJahresplanungIdeen from './ai-jahresplanung-ideen'
 
 export const metadata = { title: 'Jahresplanung verwalten' }
 
-export default async function AdminJahresplanungPage({
-  searchParams,
-}: { searchParams: { year?: string } }) {
+export default async function AdminJahresplanungPage(props: { searchParams: Promise<{ year?: string }> }) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

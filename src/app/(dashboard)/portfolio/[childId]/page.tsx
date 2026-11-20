@@ -19,7 +19,8 @@ const DOMAIN_CONFIG: Record<string, { label: string; emoji: string }> = {
   emotional: { label: 'Emotional',   emoji: '❤️' },
 }
 
-export default async function PortfolioPage({ params }: { params: { childId: string } }) {
+export default async function PortfolioPage(props: { params: Promise<{ childId: string }> }) {
+  const params = await props.params;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

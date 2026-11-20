@@ -22,11 +22,12 @@ const mealEmojis: Record<string, string> = {
   Alles: '😋', Viel: '🙂', Halb: '😐', Wenig: '😕', Nichts: '😔'
 }
 
-export default async function TagesberichtDetailPage({
-  params
-}: {
-  params: { childId: string; date: string }
-}) {
+export default async function TagesberichtDetailPage(
+  props: {
+    params: Promise<{ childId: string; date: string }>
+  }
+) {
+  const params = await props.params;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

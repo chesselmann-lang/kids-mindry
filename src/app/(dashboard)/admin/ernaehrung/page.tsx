@@ -132,7 +132,7 @@ export default function ErnaehrungPage() {
 
       <div className="flex items-center gap-2 rounded-2xl px-3 py-2" style={{ background: '#fff7ed', border: '1px solid #fed7aa' }}>
         <AlertTriangle className="w-3.5 h-3.5 shrink-0" style={{ color: '#f97316' }} />
-        <p className="text-[10px] font-semibold" style={{ color: '#c2410c' }}>HACCP-Unterweisung Fr. Meier dringend! — HACCP-Konzept überarbeiten (>1 Jahr) — Temp-Protokoll ok</p>
+        <p className="text-[10px] font-semibold" style={{ color: '#c2410c' }}>HACCP-Unterweisung Fr. Meier dringend! — HACCP-Konzept überarbeiten ({'>'}1 Jahr) — Temp-Protokoll ok</p>
       </div>
 
       {kiText ? (

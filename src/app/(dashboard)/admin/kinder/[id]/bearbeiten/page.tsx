@@ -6,7 +6,8 @@ import AiKindCheck from './ai-kind-check'
 
 export const metadata = { title: 'Kind bearbeiten' }
 
-export default async function KindBearbeitenPage({ params }: { params: { id: string } }) {
+export default async function KindBearbeitenPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

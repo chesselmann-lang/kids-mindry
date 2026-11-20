@@ -29,9 +29,8 @@ const TABLE_LABELS: Record<string, string> = {
   fees: 'Gebühr',
 }
 
-export default async function AuditLogPage({
-  searchParams,
-}: { searchParams: { page?: string } }) {
+export default async function AuditLogPage(props: { searchParams: Promise<{ page?: string }> }) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

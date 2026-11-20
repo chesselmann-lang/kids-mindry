@@ -7,7 +7,8 @@ import AiMeilensteine from './ai-meilensteine'
 
 export const metadata = { title: 'Entwicklungs-Meilensteine' }
 
-export default async function MeilensteinePage({ params }: { params: { childId: string } }) {
+export default async function MeilensteinePage(props: { params: Promise<{ childId: string }> }) {
+  const params = await props.params;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
