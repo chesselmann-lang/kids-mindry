@@ -26,6 +26,10 @@
 ## Phase 0 – offene Punkte (Audit vom 20.11.2026)
 
 Kritisch:
+- [x] Rekursion children <-> guardians behoben – Kinderlisten brachen ab (025)
+- [x] Chat repariert und abgesichert: Rekursion (Chat für alle kaputt), neue Gespräche scheiterten, jeder konnte sich in fremde Gespräche eintragen, Lesebestätigungen für alle sichtbar (026); Ablauf Erzieher↔Eltern in 10 Schritten getestet
+- [x] DSGVO-Anonymisierung lief nie durch (Spalte `content` statt `body`) → behoben und getestet (027)
+- [x] Einladungen: Gruppenleitung konnte Admins einladen; Eingeladene landeten immer in Standard-Einrichtung (Code)
 - [x] NEU gefunden: Rechteausweitung – Nutzer konnten eigene `role`/`site_id` ändern und sich bei Registrierung als admin anlegen → Trigger `protect_profile_privileges`, `handle_new_user` übernimmt Rolle/Einrichtung/Kind nur bei Einladungen (022)
 - [x] Rekursion in profiles-Richtlinie behoben (jede Profilabfrage brach mit 42P17 ab), Profile nur noch für Personal der eigenen Einrichtung sichtbar (023)
 - [x] `anonymize_child_data`: nur noch service_role, Admin-Prüfung im Funktionskörper (Migration 019)
@@ -41,6 +45,12 @@ Hoch:
 - [ ] 43 weitere Schwachstellen in Abhängigkeiten (`npm audit`)
 
 Mittel:
+- [x] Performance: 236 Richtlinien mit `(select auth.uid())`, 112 FK-Indizes, 3 doppelte Indizes entfernt (024)
+- [x] PWA: `manifest.json`/`sw.js` leiteten auf Login um → Middleware angepasst
+- [x] Syntaxfehler `ernaehrung/page.tsx` behoben
+- [ ] Typprüfung zeigt jetzt 809 ältere Fehler in 79 Dateien (meist `type never`, vermutlich Versionskonflikt @supabase/ssr 0.6 ↔ supabase-js); Build ignoriert sie (`ignoreBuildErrors`) → mit Next.js-Update angehen
+- [ ] 723 überlappende Richtlinien (multiple_permissive_policies) pro Tabelle zusammenführen – nur mit Prüfung je Tabelle
+- [ ] Ältere Gespräche haben `created_by = null` (unkritisch, Teilnehmer sehen sie weiter)
 - [ ] Bucket `kita-docs`: Lesen/Hochladen/Löschen für alle Angemeldeten → auf Einrichtung beschränken
 - [x] App-Änderungen aus 0a live (Vercel-Deploy aus GitHub `ca1a108`, 20.11.2026); Startseite/Login antworten normal
 - [ ] Portfolio-Foto-Upload und Chat-Bild mit echtem Login testen
@@ -66,6 +76,7 @@ Mittel:
 
 ## Verlauf
 
+- 20.11.2026 (Abend): Live-Check + Optimierung – Migrationen 024–027, Rechte-Test aller 113 Tabellen × 4 Rollen ohne Fehler, Chat- und DSGVO-Ablauf getestet.
 - 20.11.2026: Phase 0a – Migrationen 019–023 auf `kindergarten` angewendet (Funktionen, RLS, Bucket portfolio privat, Rechteausweitung geschlossen); Sicherheitsberater ohne kritische Funde; App-Code live deployt (aus GitHub, Vercel-Projekt hat keine Git-Anbindung).
 
 - 19.11.2026: Vollständige Sicherung aller Kita-Daten; Live-Stand (Vercel 06.05.2026) erstmals auf GitHub gesichert.
