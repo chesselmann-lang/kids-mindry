@@ -35,11 +35,12 @@ import {
   Phone,
   Milestone,
 } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
 interface NavItem {
   href: string
-  icon: React.ComponentType<{ size?: number; className?: string }>
+  icon: LucideIcon
   label: string
   badge?: number
   adminOnly?: boolean

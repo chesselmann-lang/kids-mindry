@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import { storageFileUrl } from '@/lib/portfolio-url'
 import { Plus, ChevronDown, ChevronUp, Upload, Trash2, FileText, ExternalLink, CheckCircle2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
@@ -57,7 +58,8 @@ export default function KindDokumentManager({ siteId, staffId, children, docs: i
 
     if (error) { setSaving(false); return }
 
-    const { data: { publicUrl } } = supabase.storage.from('media').getPublicUrl(path)
+    // Bucket ist privat: Abruf über signierende API-Route
+    const publicUrl = storageFileUrl('media', path)
 
     const { data } = await supabase.from('child_documents').insert({
       child_id: childId,

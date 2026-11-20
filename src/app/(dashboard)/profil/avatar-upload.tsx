@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
+import { storageFileUrl } from '@/lib/portfolio-url'
 import { createClient } from '@/lib/supabase/client'
 import { Camera, Loader2, User } from 'lucide-react'
 import Image from 'next/image'
@@ -36,8 +37,9 @@ export default function AvatarUpload({ userId, currentAvatarUrl, fullName }: Pro
       return
     }
 
-    const { data: { publicUrl } } = supabase.storage.from('media').getPublicUrl(path)
-    const finalUrl = publicUrl + `?t=${Date.now()}`
+    // Bucket ist privat: Abruf über signierende API-Route
+    const publicUrl = storageFileUrl('media', path)
+    const finalUrl = publicUrl + `&t=${Date.now()}`
 
     await supabase.from('profiles').update({ avatar_url: publicUrl }).eq('id', userId)
     setAvatarUrl(finalUrl)

@@ -23,6 +23,10 @@
 | 7 | Familie 360° | offen |
 | 8 | Store-Apps & SaaS | offen |
 
+## Nächster Schritt
+
+Next.js-Update auf 15 nach `docs/next-update-vorbereitung.md`; vorher Migration 028 anwenden.
+
 ## Phase 0 – offene Punkte (Audit vom 20.11.2026)
 
 Kritisch:
@@ -36,25 +40,27 @@ Kritisch:
 - [x] Bucket `portfolio` privat, Richtlinien nach Einrichtung/Eltern-Freigabe/Gesprächsteilnehmer (021); App lädt über `/api/storage/portfolio` (signierte URLs)
 - [x] `portfolio_entries` / `portfolio_photos`: `true`-Richtlinien entfernt (020)
 - [x] `kiosk_pins`: Lesen Personal der Einrichtung, Verwalten Admin/Gruppenleitung (020)
-- [ ] Next.js 14.2.29 hat kritische Lücke → Update auf 15/16
+- [x] Next.js 14.2.29 → 14.2.35 (gepatcht). Update auf 15/16 vorbereitet, siehe `docs/next-update-vorbereitung.md`
 
 Hoch:
 - [x] `log_parental_action` nutzt `auth.uid()`, nur service_role; `audit_log(s)`: Insert nur mit eigener ID, Lesen nur Admin der Einrichtung (019/020)
 - [x] Alle 14 Funktionen mit `search_path = public`, anon-Rechte entzogen (019). Rest-Warnung: is_admin/is_staff/my_role/my_site_id/get_unread_conversation_count für `authenticated` – gewollt (RLS bzw. nur eigener Nutzer)
 - [x] `screen_time_log`: Insert/Update nur serverseitig (020)
-- [ ] 43 weitere Schwachstellen in Abhängigkeiten (`npm audit`)
+- [x] npm audit: 54 → 35 Lücken (`npm audit fix`); Rest nur mit Major-Updates (Next 16, Sentry 11, eslint-config-next 16)
 
 Mittel:
 - [x] Performance: 236 Richtlinien mit `(select auth.uid())`, 112 FK-Indizes, 3 doppelte Indizes entfernt (024)
 - [x] PWA: `manifest.json`/`sw.js` leiteten auf Login um → Middleware angepasst
 - [x] Syntaxfehler `ernaehrung/page.tsx` behoben
-- [ ] Typprüfung zeigt jetzt 809 ältere Fehler in 79 Dateien (meist `type never`, vermutlich Versionskonflikt @supabase/ssr 0.6 ↔ supabase-js); Build ignoriert sie (`ignoreBuildErrors`) → mit Next.js-Update angehen
+- [x] Typfehler 809 → 257 (@supabase/ssr 0.12.7, Typen aus Live-Schema, Icon-Typen, Deno-Funktionen aus tsconfig). Rest = echte Code-Fehler, u. a. 16 nicht existierende Tabellen → Liste in `docs/next-update-vorbereitung.md`
+- [x] Doppelte `next.config.ts` entfernt (Next 14 nutzte nur `.mjs`), Einstellungen übernommen
 - [ ] 723 überlappende Richtlinien (multiple_permissive_policies) pro Tabelle zusammenführen – nur mit Prüfung je Tabelle
 - [ ] Ältere Gespräche haben `created_by = null` (unkritisch, Teilnehmer sehen sie weiter)
-- [ ] Bucket `kita-docs`: Lesen/Hochladen/Löschen für alle Angemeldeten → auf Einrichtung beschränken
+- [ ] **Migration 028 (media + kita-docs nach Einrichtung/Kind) vorbereitet, noch nicht angewendet** – Supabase-Bestätigung lief ab
+- [x] Bucket `media` ist privat, App nutzte öffentliche Links → Galerie, Kind-Dokumente, Tagesbericht-Fotos, Profilbilder über `/api/storage/media` (Code)
 - [x] App-Änderungen aus 0a live (Vercel-Deploy aus GitHub `ca1a108`, 20.11.2026); Startseite/Login antworten normal
 - [ ] Portfolio-Foto-Upload und Chat-Bild mit echtem Login testen
-- [ ] `package-lock.json` passt nicht zu `package.json` (@sentry/nextjs, posthog-js fehlen im Lockfile) → `npm install` und Lockfile committen
+- [x] Lockfile synchron
 - [ ] Schutz vor geleakten Passwörtern in Supabase Auth einschalten
 - [ ] TypeScript-Fehler in `src/app/(dashboard)/admin/ernaehrung/page.tsx:135`
 - [ ] Tests für Rechte (RLS) und DSGVO ergänzen (bisher 6 E2E-Tests)
@@ -76,6 +82,7 @@ Mittel:
 
 ## Verlauf
 
+- 20.11.2026 (spät): Next-Update vorbereitet – Next 14.2.35, @supabase/ssr 0.12.7, Typen neu, npm audit fix, Storage `media` auf signierte URLs, Migration 028 vorbereitet.
 - 20.11.2026 (Abend): Live-Check + Optimierung – Migrationen 024–027, Rechte-Test aller 113 Tabellen × 4 Rollen ohne Fehler, Chat- und DSGVO-Ablauf getestet.
 - 20.11.2026: Phase 0a – Migrationen 019–023 auf `kindergarten` angewendet (Funktionen, RLS, Bucket portfolio privat, Rechteausweitung geschlossen); Sicherheitsberater ohne kritische Funde; App-Code live deployt (aus GitHub, Vercel-Projekt hat keine Git-Anbindung).
 

@@ -11,6 +11,7 @@ import {
   User, Lock, Settings,
   ChevronRight, SunMedium, Flame, Bookmark,
 } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import type { AppArea } from './area-top-bar'
 
 interface SidebarGroup {
@@ -21,7 +22,7 @@ interface SidebarGroup {
 
 interface SidebarItem {
   href: string
-  icon: React.ComponentType<{ size?: number; className?: string }>
+  icon: LucideIcon
   label: string
   badge?: number
   komingSoon?: boolean

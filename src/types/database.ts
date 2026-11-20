@@ -41,6 +41,42 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_usage_logs: {
+        Row: {
+          created_at: string
+          duration_ms: number
+          feature: string
+          id: string
+          input_tokens: number
+          model: string
+          output_tokens: number
+          site_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          duration_ms?: number
+          feature: string
+          id?: string
+          input_tokens?: number
+          model: string
+          output_tokens?: number
+          site_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          duration_ms?: number
+          feature?: string
+          id?: string
+          input_tokens?: number
+          model?: string
+          output_tokens?: number
+          site_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       albums: {
         Row: {
           cover_url: string | null
@@ -391,6 +427,9 @@ export type Database = {
           created_at: string
           details: Json | null
           id: string
+          site_id: string | null
+          target_id: string | null
+          target_type: string | null
         }
         Insert: {
           action: string
@@ -398,6 +437,9 @@ export type Database = {
           created_at?: string
           details?: Json | null
           id?: string
+          site_id?: string | null
+          target_id?: string | null
+          target_type?: string | null
         }
         Update: {
           action?: string
@@ -405,8 +447,19 @@ export type Database = {
           created_at?: string
           details?: Json | null
           id?: string
+          site_id?: string | null
+          target_id?: string | null
+          target_type?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "audit_log_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       audit_logs: {
         Row: {
@@ -624,6 +677,8 @@ export type Database = {
           care_end_time: string | null
           care_start_time: string | null
           care_type: string | null
+          consent_confirmed_at: string | null
+          consent_status: string
           created_at: string | null
           date_of_birth: string | null
           desired_start_date: string | null
@@ -637,9 +692,11 @@ export type Database = {
           group_id: string | null
           has_sibling: boolean | null
           id: string
+          kjm_age_group: string | null
           last_name: string
           medical_notes: string | null
           monthly_fee: number | null
+          parent_email: string | null
           photo_url: string | null
           single_parent: boolean | null
           site_id: string | null
@@ -654,6 +711,8 @@ export type Database = {
           care_end_time?: string | null
           care_start_time?: string | null
           care_type?: string | null
+          consent_confirmed_at?: string | null
+          consent_status?: string
           created_at?: string | null
           date_of_birth?: string | null
           desired_start_date?: string | null
@@ -667,9 +726,11 @@ export type Database = {
           group_id?: string | null
           has_sibling?: boolean | null
           id?: string
+          kjm_age_group?: string | null
           last_name: string
           medical_notes?: string | null
           monthly_fee?: number | null
+          parent_email?: string | null
           photo_url?: string | null
           single_parent?: boolean | null
           site_id?: string | null
@@ -684,6 +745,8 @@ export type Database = {
           care_end_time?: string | null
           care_start_time?: string | null
           care_type?: string | null
+          consent_confirmed_at?: string | null
+          consent_status?: string
           created_at?: string | null
           date_of_birth?: string | null
           desired_start_date?: string | null
@@ -697,9 +760,11 @@ export type Database = {
           group_id?: string | null
           has_sibling?: boolean | null
           id?: string
+          kjm_age_group?: string | null
           last_name?: string
           medical_notes?: string | null
           monthly_fee?: number | null
+          parent_email?: string | null
           photo_url?: string | null
           single_parent?: boolean | null
           site_id?: string | null
@@ -717,6 +782,96 @@ export type Database = {
           },
           {
             foreignKeyName: "children_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      consent_preferences: {
+        Row: {
+          analytics: boolean
+          banner_shown_at: string | null
+          consent_source: string | null
+          id: string
+          last_updated_at: string
+          marketing: boolean
+          necessary: boolean
+          personalization: boolean
+          user_id: string
+        }
+        Insert: {
+          analytics?: boolean
+          banner_shown_at?: string | null
+          consent_source?: string | null
+          id?: string
+          last_updated_at?: string
+          marketing?: boolean
+          necessary?: boolean
+          personalization?: boolean
+          user_id: string
+        }
+        Update: {
+          analytics?: boolean
+          banner_shown_at?: string | null
+          consent_source?: string | null
+          id?: string
+          last_updated_at?: string
+          marketing?: boolean
+          necessary?: boolean
+          personalization?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
+      consent_tokens: {
+        Row: {
+          child_id: string | null
+          created_at: string
+          expires_at: string
+          id: string
+          parent_email: string
+          payload: Json | null
+          site_id: string | null
+          token: string
+          token_type: string
+          used_at: string | null
+        }
+        Insert: {
+          child_id?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          parent_email: string
+          payload?: Json | null
+          site_id?: string | null
+          token?: string
+          token_type: string
+          used_at?: string | null
+        }
+        Update: {
+          child_id?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          parent_email?: string
+          payload?: Json | null
+          site_id?: string | null
+          token?: string
+          token_type?: string
+          used_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consent_tokens_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "consent_tokens_site_id_fkey"
             columns: ["site_id"]
             isOneToOne: false
             referencedRelation: "sites"
@@ -1341,6 +1496,68 @@ export type Database = {
           },
           {
             foreignKeyName: "elternbeitrags_bescheide_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      elterngespraech_vorbereitung: {
+        Row: {
+          ai_punkte: Json | null
+          child_id: string
+          erstellt_at: string | null
+          erstellt_von: string | null
+          id: string
+          meeting_id: string | null
+          notizen: string | null
+          site_id: string
+        }
+        Insert: {
+          ai_punkte?: Json | null
+          child_id: string
+          erstellt_at?: string | null
+          erstellt_von?: string | null
+          id?: string
+          meeting_id?: string | null
+          notizen?: string | null
+          site_id: string
+        }
+        Update: {
+          ai_punkte?: Json | null
+          child_id?: string
+          erstellt_at?: string | null
+          erstellt_von?: string | null
+          id?: string
+          meeting_id?: string | null
+          notizen?: string | null
+          site_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "elterngespraech_vorbereitung_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "elterngespraech_vorbereitung_erstellt_von_fkey"
+            columns: ["erstellt_von"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "elterngespraech_vorbereitung_meeting_id_fkey"
+            columns: ["meeting_id"]
+            isOneToOne: false
+            referencedRelation: "parent_meetings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "elterngespraech_vorbereitung_site_id_fkey"
             columns: ["site_id"]
             isOneToOne: false
             referencedRelation: "sites"
@@ -3420,6 +3637,136 @@ export type Database = {
           },
         ]
       }
+      parental_consent: {
+        Row: {
+          child_id: string
+          consent_version: string
+          consented_at: string | null
+          created_at: string
+          expires_at: string | null
+          id: string
+          ip_hash: string | null
+          parent_email: string
+          parent_user_id: string | null
+          revocation_reason: string | null
+          revoked_at: string | null
+          scope_ai_coaching: boolean
+          scope_analytics: boolean
+          scope_learning: boolean
+          scope_marketing: boolean
+          updated_at: string
+          user_agent_hash: string | null
+        }
+        Insert: {
+          child_id: string
+          consent_version?: string
+          consented_at?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          ip_hash?: string | null
+          parent_email: string
+          parent_user_id?: string | null
+          revocation_reason?: string | null
+          revoked_at?: string | null
+          scope_ai_coaching?: boolean
+          scope_analytics?: boolean
+          scope_learning?: boolean
+          scope_marketing?: boolean
+          updated_at?: string
+          user_agent_hash?: string | null
+        }
+        Update: {
+          child_id?: string
+          consent_version?: string
+          consented_at?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          ip_hash?: string | null
+          parent_email?: string
+          parent_user_id?: string | null
+          revocation_reason?: string | null
+          revoked_at?: string | null
+          scope_ai_coaching?: boolean
+          scope_analytics?: boolean
+          scope_learning?: boolean
+          scope_marketing?: boolean
+          updated_at?: string
+          user_agent_hash?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "parental_consent_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      parental_controls: {
+        Row: {
+          allowed_end_time: string | null
+          allowed_start_time: string | null
+          blocked_areas: string[]
+          child_id: string
+          created_at: string
+          daily_limit_minutes: number
+          id: string
+          max_age_rating: string
+          parent_user_id: string
+          report_day_of_week: number | null
+          report_email: string | null
+          require_pin_for_delete: boolean
+          require_pin_for_export: boolean
+          updated_at: string
+          weekly_report_enabled: boolean
+        }
+        Insert: {
+          allowed_end_time?: string | null
+          allowed_start_time?: string | null
+          blocked_areas?: string[]
+          child_id: string
+          created_at?: string
+          daily_limit_minutes?: number
+          id?: string
+          max_age_rating?: string
+          parent_user_id: string
+          report_day_of_week?: number | null
+          report_email?: string | null
+          require_pin_for_delete?: boolean
+          require_pin_for_export?: boolean
+          updated_at?: string
+          weekly_report_enabled?: boolean
+        }
+        Update: {
+          allowed_end_time?: string | null
+          allowed_start_time?: string | null
+          blocked_areas?: string[]
+          child_id?: string
+          created_at?: string
+          daily_limit_minutes?: number
+          id?: string
+          max_age_rating?: string
+          parent_user_id?: string
+          report_day_of_week?: number | null
+          report_email?: string | null
+          require_pin_for_delete?: boolean
+          require_pin_for_export?: boolean
+          updated_at?: string
+          weekly_report_enabled?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "parental_controls_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: true
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payment_items: {
         Row: {
           amount: number
@@ -3962,6 +4309,64 @@ export type Database = {
           },
         ]
       }
+      reported_messages: {
+        Row: {
+          created_at: string
+          id: string
+          message_id: string
+          note: string | null
+          reason: string
+          reported_by: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message_id: string
+          note?: string | null
+          reason?: string
+          reported_by: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message_id?: string
+          note?: string | null
+          reason?: string
+          reported_by?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reported_messages_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reported_messages_reported_by_fkey"
+            columns: ["reported_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reported_messages_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rooms: {
         Row: {
           assigned_group_id: string | null
@@ -4050,6 +4455,41 @@ export type Database = {
             columns: ["site_id"]
             isOneToOne: false
             referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      screen_time_log: {
+        Row: {
+          child_id: string
+          created_at: string
+          id: string
+          log_date: string
+          minutes_used: number
+          updated_at: string
+        }
+        Insert: {
+          child_id: string
+          created_at?: string
+          id?: string
+          log_date?: string
+          minutes_used?: number
+          updated_at?: string
+        }
+        Update: {
+          child_id?: string
+          created_at?: string
+          id?: string
+          log_date?: string
+          minutes_used?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "screen_time_log_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
             referencedColumns: ["id"]
           },
         ]
@@ -4508,6 +4948,97 @@ export type Database = {
             columns: ["substitute_staff_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      support_ticket_replies: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_internal: boolean | null
+          is_staff_reply: boolean | null
+          message: string
+          ticket_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_internal?: boolean | null
+          is_staff_reply?: boolean | null
+          message: string
+          ticket_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_internal?: boolean | null
+          is_staff_reply?: boolean | null
+          message?: string
+          ticket_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_ticket_replies_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      support_tickets: {
+        Row: {
+          assigned_to: string | null
+          category: string
+          created_at: string | null
+          id: string
+          message: string
+          priority: string
+          resolved_at: string | null
+          site_id: string | null
+          status: string
+          subject: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          category?: string
+          created_at?: string | null
+          id?: string
+          message: string
+          priority?: string
+          resolved_at?: string | null
+          site_id?: string | null
+          status?: string
+          subject: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          assigned_to?: string | null
+          category?: string
+          created_at?: string | null
+          id?: string
+          message?: string
+          priority?: string
+          resolved_at?: string | null
+          site_id?: string | null
+          status?: string
+          subject?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_tickets_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
             referencedColumns: ["id"]
           },
         ]
@@ -5012,12 +5543,24 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      anonymize_child_data: { Args: { p_child_id: string }; Returns: undefined }
       get_unread_conversation_count: {
         Args: { p_user_id: string }
         Returns: number
       }
       is_admin: { Args: never; Returns: boolean }
       is_staff: { Args: never; Returns: boolean }
+      log_parental_action: {
+        Args: {
+          p_action: string
+          p_actor_id: string
+          p_details?: Json
+          p_site_id?: string
+          p_target_id: string
+          p_target_type: string
+        }
+        Returns: string
+      }
       my_role: { Args: never; Returns: string }
       my_site_id: { Args: never; Returns: string }
     }
@@ -5038,12 +5581,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -5067,11 +5610,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -5092,11 +5635,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -5117,11 +5660,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -5134,11 +5677,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -5152,28 +5695,3 @@ export const Constants = {
     Enums: {},
   },
 } as const
-
-// ── Convenience type aliases ──────────────────────────────────────────────────
-export type NotificationSettings = Database['public']['Tables']['notification_settings']['Row']
-export type SickReport = Database['public']['Tables']['sick_reports']['Row']
-export type PickupPerson = Database['public']['Tables']['pickup_persons']['Row']
-export type HealthRecord = Database['public']['Tables']['health_records']['Row']
-export type Observation = Database['public']['Tables']['observations']['Row']
-export type Milestone = Database['public']['Tables']['milestones']['Row']
-export type Protocol = Database['public']['Tables']['protocols']['Row']
-export type Site = Database['public']['Tables']['sites']['Row']
-export type Group = Database['public']['Tables']['groups']['Row']
-export type Profile = Database['public']['Tables']['profiles']['Row']
-export type Child = Database['public']['Tables']['children']['Row']
-export type Guardian = Database['public']['Tables']['guardians']['Row']
-export type Attendance = Database['public']['Tables']['attendance']['Row']
-export type DailyReport = Database['public']['Tables']['daily_reports']['Row']
-export type Announcement = Database['public']['Tables']['announcements']['Row']
-export type KitaEvent = Database['public']['Tables']['events']['Row']
-export type WeeklyMenu = Database['public']['Tables']['weekly_menus']['Row']
-export type Album = Database['public']['Tables']['albums']['Row']
-export type MediaAsset = Database['public']['Tables']['media_assets']['Row']
-export type Notification = Database['public']['Tables']['notifications']['Row']
-export type Conversation = Database['public']['Tables']['conversations']['Row']
-export type ConversationParticipant = Database['public']['Tables']['conversation_participants']['Row']
-export type Message = Database['public']['Tables']['messages']['Row']
