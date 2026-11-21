@@ -1,6 +1,6 @@
 # KitaHub – Stand
 
-**Aktualisiert:** 20.11.2026 · **Aktuelle Phase:** 0 – Fundament (0a Datenbank-Sicherheit erledigt)
+**Aktualisiert:** 20.11.2026 · **Aktuelle Phase:** 0 – Fundament (Sicherheit erledigt, Next-Update vorbereitet)
 
 ## Entscheidungen (20.11.2026)
 
@@ -25,9 +25,8 @@
 
 ## Nächster Schritt
 
-1. Migration 028 anwenden (Supabase-Bestätigung nötig)
-2. Stand `1d2baad` deployen (Vercel) und Galerie/Portfolio/Chat mit echtem Login testen
-3. Next.js-Update auf 15 nach `docs/next-update-vorbereitung.md`
+1. Galerie, Portfolio, Chat, Dokumente mit echtem Login testen
+2. Next.js-Update auf 15 nach `docs/next-update-vorbereitung.md`
 
 ## Phase 0 – offene Punkte (Audit vom 20.11.2026)
 
@@ -58,7 +57,7 @@ Mittel:
 - [x] Doppelte `next.config.ts` entfernt (Next 14 nutzte nur `.mjs`), Einstellungen übernommen
 - [ ] 723 überlappende Richtlinien (multiple_permissive_policies) pro Tabelle zusammenführen – nur mit Prüfung je Tabelle
 - [ ] Ältere Gespräche haben `created_by = null` (unkritisch, Teilnehmer sehen sie weiter)
-- [ ] **Migration 028 (media + kita-docs nach Einrichtung/Kind) vorbereitet, noch nicht angewendet** – Supabase-Bestätigung lief ab
+- [x] Buckets `media` + `kita-docs` auf Einrichtung/Kind beschränkt (028, 21.11.2026); 10 Speicher-Tests bestanden
 - [x] Bucket `media` ist privat, App nutzte öffentliche Links → Galerie, Kind-Dokumente, Tagesbericht-Fotos, Profilbilder über `/api/storage/media` (Code)
 - [x] App-Änderungen aus 0a live (Vercel-Deploy aus GitHub `ca1a108`, 20.11.2026); Startseite/Login antworten normal
 - [ ] Portfolio-Foto-Upload und Chat-Bild mit echtem Login testen
@@ -84,6 +83,7 @@ Mittel:
 
 ## Verlauf
 
+- 21.11.2026: Migration 028 angewendet und getestet; Stand `50028b3` live (Next 14.2.35).
 - 20.11.2026 (spät): Next-Update vorbereitet – Next 14.2.35, @supabase/ssr 0.12.7, Typen neu, npm audit fix, Storage `media` auf signierte URLs, Migration 028 vorbereitet.
 - 20.11.2026 (Abend): Live-Check + Optimierung – Migrationen 024–027, Rechte-Test aller 113 Tabellen × 4 Rollen ohne Fehler, Chat- und DSGVO-Ablauf getestet.
 - 20.11.2026: Phase 0a – Migrationen 019–023 auf `kindergarten` angewendet (Funktionen, RLS, Bucket portfolio privat, Rechteausweitung geschlossen); Sicherheitsberater ohne kritische Funde; App-Code live deployt (aus GitHub, Vercel-Projekt hat keine Git-Anbindung).
