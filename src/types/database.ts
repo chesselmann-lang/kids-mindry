@@ -911,6 +911,7 @@ export type Database = {
       conversations: {
         Row: {
           created_at: string
+          created_by: string | null
           id: string
           site_id: string
           subject: string | null
@@ -919,6 +920,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          created_by?: string | null
           id?: string
           site_id: string
           subject?: string | null
@@ -927,6 +929,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          created_by?: string | null
           id?: string
           site_id?: string
           subject?: string | null
@@ -5544,11 +5547,21 @@ export type Database = {
     }
     Functions: {
       anonymize_child_data: { Args: { p_child_id: string }; Returns: undefined }
+      can_access_child: { Args: { p_child_id: string }; Returns: boolean }
+      child_site_id: { Args: { p_child_id: string }; Returns: string }
       get_unread_conversation_count: {
         Args: { p_user_id: string }
         Returns: number
       }
       is_admin: { Args: never; Returns: boolean }
+      is_conversation_creator: {
+        Args: { p_conversation_id: string }
+        Returns: boolean
+      }
+      is_conversation_member: {
+        Args: { p_conversation_id: string }
+        Returns: boolean
+      }
       is_staff: { Args: never; Returns: boolean }
       log_parental_action: {
         Args: {

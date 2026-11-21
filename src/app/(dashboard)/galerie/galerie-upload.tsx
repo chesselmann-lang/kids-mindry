@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import { storageFileUrl } from '@/lib/portfolio-url'
 import { createClient } from '@/lib/supabase/client'
 import { Upload, X, Loader2, CheckCircle2, ImageIcon, FolderPlus } from 'lucide-react'
 import { useRouter } from 'next/navigation'
@@ -74,9 +75,8 @@ export default function GalerieUpload({ siteId, userId }: Props) {
             consent_required: true,
           })
         } else {
-          const { data: { publicUrl } } = supabase.storage
-            .from('media')
-            .getPublicUrl(path)
+          // Bucket ist privat: Abruf über signierende API-Route
+          const publicUrl = storageFileUrl('media', path)
 
           await supabase.from('media_assets').insert({
             site_id: siteId,

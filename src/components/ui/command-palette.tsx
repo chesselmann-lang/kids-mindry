@@ -8,12 +8,13 @@ import {
   FileText, BarChart3, ChevronRight, Clock, LogOut,
   Heart, Euro, QrCode, Star, SunMedium, Settings,
 } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 
 interface CommandItem {
   id: string
   label: string
   description?: string
-  icon: React.ComponentType<{ size?: number; className?: string }>
+  icon: LucideIcon
   group: string
   href?: string
   action?: () => void

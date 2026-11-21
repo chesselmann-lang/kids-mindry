@@ -1,6 +1,6 @@
 # KitaHub – Stand
 
-**Aktualisiert:** 20.11.2026 · **Aktuelle Phase:** 0 – Fundament (0a erledigt, 0b auf Branch `chore/phase-0b-next-update`, noch nicht live)
+**Aktualisiert:** 21.11.2026 · **Aktuelle Phase:** 0 – Fundament (Sicherheit erledigt, 0b Next 16 live)
 
 ## Entscheidungen (20.11.2026)
 
@@ -9,18 +9,11 @@
 - Ausbau: Kita-Websites, Träger-Verwaltung, Familie 360°, Lernen & Kinder-Inhalte, Schul-App.
 - Reihenfolge: erst Fundament, dann Features.
 
-## Nächste Schritte
-
-1. Vorschau des Branches `chore/phase-0b-next-update` (Vercel, Region fra1, Alias `kids-mindry-git-chore-phase-0b-next-update-mindry.vercel.app`, nur mit Vercel-Login) mit echtem Konto durchklicken: Login, Chat inkl. Übersetzung, Portfolio-Foto, Dokumente, DSGVO-Export eines Testkindes. Ohne Login geprüft: Login-Seite 200, Weiterleitung, Sicherheits-Header, Datenbank ok.
-2. Danach in `main` mergen und live deployen (Produktion wechselt dabei von iad1/USA nach fra1).
-3. Fehlende Umgebungsvariablen in Vercel setzen – auch **live** fehlen laut `/api/health`: `ANTHROPIC_API_KEY` (alle KI-Funktionen aus), Stripe, Resend (E-Mail), Kiosk-PIN. Erst klären, ob KI mit Kinderdaten schon erlaubt ist (AVV, Regel 6).
-4. Übrige Zugriffe auf fehlende Tabellen klären (siehe Typfehler unten).
-
 ## Phasen
 
 | Phase | Inhalt | Stand |
 | --- | --- | --- |
-| 0 | Fundament: Sicherheit, Updates, Tests, Datenschutz | in Arbeit (0a erledigt, 0b gebaut – Merge/Deploy offen) |
+| 0 | Fundament: Sicherheit, Updates, Tests, Datenschutz | in Arbeit (0a + 0b erledigt) |
 | 1 | Pilot-Reife: 4 Kitas, Rollen, AVVs, Kernfunktionen | offen |
 | 2 | Pilot Schatzkiste (4–6 Wochen) | offen |
 | 3 | Kita-Websites mit App verbinden | offen |
@@ -30,34 +23,53 @@
 | 7 | Familie 360° | offen |
 | 8 | Store-Apps & SaaS | offen |
 
+## Nächster Schritt
+
+1. Live mit echtem Login durchklicken: Galerie, Portfolio, Chat inkl. Übersetzung, Dokumente, DSGVO-Export eines Testkindes (seit 21.11. Next 16, Region Frankfurt)
+2. Fehlende Umgebungsvariablen in Vercel – live laut `/api/health` nicht gesetzt: `ANTHROPIC_API_KEY` (alle KI-Funktionen aus), Stripe, Resend (E-Mail), Kiosk-PIN. KI erst nach AVV-Klärung (Regel 6)
+3. Typfehler abbauen (183), Zugriffe auf nicht vorhandene Tabellen klären (Liste in `docs/next-update-vorbereitung.md`), danach `ignoreBuildErrors: false`
+
 ## Phase 0 – offene Punkte (Audit vom 20.11.2026)
 
 Kritisch:
+- [x] Rekursion children <-> guardians behoben – Kinderlisten brachen ab (025)
+- [x] Chat repariert und abgesichert: Rekursion (Chat für alle kaputt), neue Gespräche scheiterten, jeder konnte sich in fremde Gespräche eintragen, Lesebestätigungen für alle sichtbar (026); Ablauf Erzieher↔Eltern in 10 Schritten getestet
+- [x] DSGVO-Anonymisierung lief nie durch (Spalte `content` statt `body`) → behoben und getestet (027)
+- [x] Einladungen: Gruppenleitung konnte Admins einladen; Eingeladene landeten immer in Standard-Einrichtung (Code)
 - [x] NEU gefunden: Rechteausweitung – Nutzer konnten eigene `role`/`site_id` ändern und sich bei Registrierung als admin anlegen → Trigger `protect_profile_privileges`, `handle_new_user` übernimmt Rolle/Einrichtung/Kind nur bei Einladungen (022)
 - [x] Rekursion in profiles-Richtlinie behoben (jede Profilabfrage brach mit 42P17 ab), Profile nur noch für Personal der eigenen Einrichtung sichtbar (023)
 - [x] `anonymize_child_data`: nur noch service_role, Admin-Prüfung im Funktionskörper (Migration 019)
 - [x] Bucket `portfolio` privat, Richtlinien nach Einrichtung/Eltern-Freigabe/Gesprächsteilnehmer (021); App lädt über `/api/storage/portfolio` (signierte URLs)
 - [x] `portfolio_entries` / `portfolio_photos`: `true`-Richtlinien entfernt (020)
 - [x] `kiosk_pins`: Lesen Personal der Einrichtung, Verwalten Admin/Gruppenleitung (020)
-- [x] Next.js 14.2.29 → 16.4.6, React 19 (Branch `chore/phase-0b-next-update`, Build grün) – **noch mergen und deployen**
+- [x] Next.js 14.2.29 → 14.2.35 (gepatcht) → **16.4.6** mit React 19 (Phase 0b, 21.11.2026 live)
 
 Hoch:
 - [x] `log_parental_action` nutzt `auth.uid()`, nur service_role; `audit_log(s)`: Insert nur mit eigener ID, Lesen nur Admin der Einrichtung (019/020)
 - [x] Alle 14 Funktionen mit `search_path = public`, anon-Rechte entzogen (019). Rest-Warnung: is_admin/is_staff/my_role/my_site_id/get_unread_conversation_count für `authenticated` – gewollt (RLS bzw. nur eigener Nutzer)
 - [x] `screen_time_log`: Insert/Update nur serverseitig (020)
-- [x] Abhängigkeiten aktualisiert: `npm audit` von 54 auf 0 Schwachstellen (Branch 0b)
+- [x] npm audit: 54 → 35 → **0** Lücken (Next 16, Sentry 11, ESLint 9, Anthropic SDK 1.12)
+- [x] DSGVO-Löschung (`/api/dsgvo/loeschen`) wirkte über alle Einrichtungen und brach an fehlender Tabelle/Spalte ab → nur eigene Einrichtung, über `anonymize_child_data`
+- [x] DSGVO-Export pro Kind lieferte fast nur Stammdaten (9 von 10 Abfragen mit falschen Spalten) und prüfte Einrichtung über feste Variable → vollständig, über `profiles.site_id`
+- [x] Vercel-Funktionen liefen in iad1 (USA) → fra1 (Frankfurt)
 
 Mittel:
-- [ ] Bucket `kita-docs`: Lesen/Hochladen/Löschen für alle Angemeldeten → auf Einrichtung beschränken
+- [x] Performance: 236 Richtlinien mit `(select auth.uid())`, 112 FK-Indizes, 3 doppelte Indizes entfernt (024)
+- [x] PWA: `manifest.json`/`sw.js` leiteten auf Login um → Middleware angepasst
+- [x] Syntaxfehler `ernaehrung/page.tsx` behoben
+- [x] Typfehler 809 → 257 (@supabase/ssr 0.12.7, Typen aus Live-Schema, Icon-Typen, Deno-Funktionen aus tsconfig). Rest = echte Code-Fehler, u. a. 16 nicht existierende Tabellen → Liste in `docs/next-update-vorbereitung.md`
+- [x] Doppelte `next.config.ts` entfernt (Next 14 nutzte nur `.mjs`), Einstellungen übernommen
+- [ ] 723 überlappende Richtlinien (multiple_permissive_policies) pro Tabelle zusammenführen – nur mit Prüfung je Tabelle
+- [ ] Ältere Gespräche haben `created_by = null` (unkritisch, Teilnehmer sehen sie weiter)
+- [x] Buckets `media` + `kita-docs` auf Einrichtung/Kind beschränkt (028, 21.11.2026); 10 Speicher-Tests bestanden
+- [x] Bucket `media` ist privat, App nutzte öffentliche Links → Galerie, Kind-Dokumente, Tagesbericht-Fotos, Profilbilder über `/api/storage/media` (Code)
 - [x] App-Änderungen aus 0a live (Vercel-Deploy aus GitHub `ca1a108`, 20.11.2026); Startseite/Login antworten normal
 - [ ] Portfolio-Foto-Upload und Chat-Bild mit echtem Login testen
-- [x] `package-lock.json` neu erzeugt und passend zu `package.json` (Branch 0b)
-- [ ] Schutz vor geleakten Passwörtern in Supabase Auth einschalten
-- [x] TypeScript-Fehler in `src/app/(dashboard)/admin/ernaehrung/page.tsx:135` (Syntax `>` in JSX)
-- [ ] 186 weitere Typfehler (jetzt 184) – waren hinter dem Syntaxfehler und `ignoreBuildErrors` versteckt (anfangs 872). Build ignoriert sie weiterhin (`next.config.mjs`). Hauptursache: Code fragt Tabellen ab, die es in `kindergarten` nicht gibt: `weekly_reports`, `absence_requests`, `sismik_assessments`, `beobachtungen`, `calendar_events`, `child_milestones`, `group_activities`, `meal_plans`, `portfolio_items`, `protokolle`, `tagesjournal`, `tagesberichte`, `uebergabe_eintraege`, `nachrichten`, `ki_cockpit_prognosen`, `beobachtungs_audits_summary`. DSGVO-Routen sind behoben (siehe Verlauf). Danach `ignoreBuildErrors: false`.
-- [ ] ESLint war nie eingerichtet; jetzt `eslint.config.mjs` (Next 16), `npm run lint` meldet 1.915 Fehler – schrittweise abbauen
-- [ ] Sentry im Browser ist inaktiv (`sentry.client.config.ts` wird ohne `withSentryConfig` nie geladen) → nach `instrumentation-client.ts` umziehen
-- [ ] `admin/ernaehrung`: fest eingebauter Demo-Hinweis („HACCP-Unterweisung Fr. Meier dringend!“) durch echte Daten ersetzen
+- [x] Lockfile synchron
+- [x] Schutz vor geleakten Passwörtern in Supabase Auth eingeschaltet (20.11.2026)
+- [ ] 183 Typfehler (Build ignoriert sie noch), ESLint neu eingerichtet: 1.915 Fehler
+- [ ] Sentry im Browser inaktiv (`sentry.client.config.ts` wird nie geladen) → `instrumentation-client.ts`
+- [ ] `admin/ernaehrung`: fest eingebauter Demo-Hinweis („Fr. Meier“) durch echte Daten ersetzen
 - [ ] Tests für Rechte (RLS) und DSGVO ergänzen (bisher 6 E2E-Tests)
 - [ ] 144 KI-Routen bündeln, Modell je Aufgabe wählen
 - [ ] Repos `kids-mindry` und `katja-koch-kitas` auf privat stellen
@@ -76,8 +88,10 @@ Mittel:
 
 ## Verlauf
 
-- 20.11.2026: Phase 0b, Teil 2 (gleicher Branch): **DSGVO-Löschung** (`/api/dsgvo/loeschen`) arbeitete mit Service-Schlüssel über alle Einrichtungen, nutzte die fehlende Tabelle `tagesberichte` und die fehlende Spalte `children.notes` (Anonymisierung schlug immer fehl) → jetzt nur eigene Einrichtung, `anonymize_child_data`, `daily_reports`, Fehler werden gemeldet. Betroffen war nichts (1 Einrichtung, kein archiviertes Kind). **DSGVO-Export pro Kind** (`/api/dsgvo-kind-export`) fragte in 9 von 10 Abfragen nicht vorhandene Spalten ab und lieferte fast nur Stammdaten; Einrichtungsprüfung lief über `NEXT_PUBLIC_DEFAULT_SITE_ID` statt Profil → jetzt vollständige Zeilen, Abbruch statt unvollständigem Export, Prüfung über `profiles.site_id`. Vercel-Funktionen von iad1 (USA) auf fra1 (Frankfurt). Vorschau-Deploys gebaut.
-- 20.11.2026: Phase 0b auf Branch `chore/phase-0b-next-update`: Next.js 16.4.6 (Turbopack), React 19, Sentry 11, @supabase/ssr 0.12, supabase-js 2.119, lucide-react 1.x, Anthropic SDK 1.12, ESLint 9; Stripe bleibt auf 22.0.x (API-Version `2026-03-25.dahlia` unverändert). `middleware.ts` → `proxy.ts`, Request-APIs async (Codemod, 54 Dateien), doppelte `next.config.ts` entfernt (maßgeblich war immer `.mjs`), Supabase-Typen neu erzeugt (16 Tabellen fehlten), tsconfig: Ziel ES2017, Edge Functions ausgenommen. Nebenbei behoben: Übersetzungs-Route rief `anthropic()` auf (Laufzeitfehler), Icon `Chrome` gibt es in lucide 1.x nicht mehr (Dokumente-Seite wäre abgestürzt). Build grün, `npm audit` 0, lokaler Start: Login 200, Weiterleitung und Sicherheits-Header ok.
+- 21.11.2026: **Phase 0b live** – Next.js 16.4.6 (Turbopack), React 19, Sentry 11, supabase-js 2.119, lucide 1.x, Anthropic SDK 1.12, ESLint 9; Stripe bleibt 22.0.x (API `2026-03-25.dahlia`). `middleware.ts` → `proxy.ts`, async Request-APIs (Codemod), Typen neu aus Live-Schema. Nebenbei behoben: Übersetzungs-Route (`anthropic()` → Laufzeitfehler), Icon `Chrome` fehlt in lucide 1.x (Dokumente), DSGVO-Löschung/-Export (siehe oben), Region fra1. Branch `chore/phase-0b-next-update` mit `main` (024–028, Storage-Route) zusammengeführt.
+- 21.11.2026: Migration 028 angewendet und getestet; Stand `50028b3` live (Next 14.2.35).
+- 20.11.2026 (spät): Next-Update vorbereitet – Next 14.2.35, @supabase/ssr 0.12.7, Typen neu, npm audit fix, Storage `media` auf signierte URLs, Migration 028 vorbereitet.
+- 20.11.2026 (Abend): Live-Check + Optimierung – Migrationen 024–027, Rechte-Test aller 113 Tabellen × 4 Rollen ohne Fehler, Chat- und DSGVO-Ablauf getestet.
 - 20.11.2026: Phase 0a – Migrationen 019–023 auf `kindergarten` angewendet (Funktionen, RLS, Bucket portfolio privat, Rechteausweitung geschlossen); Sicherheitsberater ohne kritische Funde; App-Code live deployt (aus GitHub, Vercel-Projekt hat keine Git-Anbindung).
 
 - 19.11.2026: Vollständige Sicherung aller Kita-Daten; Live-Stand (Vercel 06.05.2026) erstmals auf GitHub gesichert.

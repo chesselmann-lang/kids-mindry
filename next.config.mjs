@@ -39,6 +39,8 @@ const PERMISSIONS_POLICY = [
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  compress: true,
+  poweredByHeader: false,
   typescript: {
     // TODO Phase 0: Typen wurden am 20.11.2026 neu aus Supabase erzeugt.
     // Restliche Fehler (u. a. Code greift auf nicht vorhandene Tabellen zu)
@@ -46,6 +48,8 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
+    formats: ['image/avif', 'image/webp'],
+    minimumCacheTTL: 86400,
     remotePatterns: [
       {
         protocol: 'https',

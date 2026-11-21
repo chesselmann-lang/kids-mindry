@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect, useCallback } from 'react'
+import { storageFileUrl } from '@/lib/portfolio-url'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, Save, Camera, X, ImagePlus, CloudOff, Cloud, Trash2, CheckCircle, MessageCircle, Share2, RotateCcw, Sparkles, Loader2 } from 'lucide-react'
 import Link from 'next/link'
@@ -171,8 +172,8 @@ export default function TagesberichtForm({ children, preselectedChildId, authorI
         .from('media')
         .upload(path, file, { contentType: file.type, upsert: true })
       if (!error) {
-        const { data: urlData } = supabase.storage.from('media').getPublicUrl(path)
-        urls.push(urlData.publicUrl)
+        // Bucket ist privat: Abruf über signierende API-Route
+        urls.push(storageFileUrl('media', path))
       }
       setUploadProgress(Math.round(((i + 1) / photos.length) * 100))
     }
